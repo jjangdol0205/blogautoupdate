@@ -23,11 +23,11 @@ export async function POST(req: Request) {
     2. fallback: primary 검색 실패 시 사용할, 검색어의 상위 카테고리에 해당하는 매우 포괄적이고 대중적인 영어 단어 1~2개 (예: animal, nature, technology, business, food, health, interior, city, lifestyle 등 무조건 검색 결과가 수만 장씩 나오는 넓은 의미의 단어)
     
     예시:
-    "강아지 여름 산책" -> {"primary": "dog walking", "fallback": "happy dog"}
+    "아이폰 15 프로 자급제 구매" -> {"primary": "iphone 15 pro", "fallback": "technology"}
+    "강아지 여름 산책" -> {"primary": "dog walking", "fallback": "animal"}
     "척추 임플란트" -> {"primary": "hospital room", "fallback": "health"}
     "엘앤케이바이오" -> {"primary": "laboratory", "fallback": "science"}
-    "삼성전자" -> {"primary": "semiconductor", "fallback": "technology"}
-    "다이어트 식단" -> {"primary": "healthy salad", "fallback": "diet food"}
+    "다이어트 식단" -> {"primary": "healthy salad", "fallback": "food"}
 
     반드시 아래 JSON 형식으로만 응답하세요. 다른 문장 부호나 설명은 절대 붙이지 마세요.
     {"primary": "...", "fallback": "..."}
