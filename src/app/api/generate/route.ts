@@ -60,11 +60,13 @@ export async function POST(req: Request) {
     
     async function fetchUnsplashImages(kw: string) {
       try {
-        const res = await fetch(`https://unsplash.com/napi/search/photos?query=${encodeURIComponent(kw)}&per_page=3&orientation=landscape`);
+        const res = await fetch(`https://unsplash.com/napi/search/photos?query=${encodeURIComponent(kw)}&per_page=20&orientation=landscape`);
         if (res.ok) {
           const json = await res.json();
           if (json.results && json.results.length >= 3) {
-            return json.results.slice(0, 3).map((r: { urls: { regular: string } }) => r.urls.regular);
+            // 결과 배열을 랜덤하게 섞어서 매번 다른 사진이 나오도록 함
+            const shuffled = json.results.sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, 3).map((r: { urls: { regular: string } }) => r.urls.regular);
           }
         }
       } catch (e) {
