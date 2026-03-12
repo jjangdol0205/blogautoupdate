@@ -37,28 +37,38 @@ export async function POST(req: Request) {
     // 영어 키워드 정제
     const searchKeyword = (transRes.text || "business").trim().replace(/_/g, ' ');
 
-    // 2. Unsplash NAPI (내부 API)를 통해 실제 작동하는 고화질 사진 URL 3장 가져오기
+    // 2. Unsplash NAPI를 통해 실제 작동하는 고화질 사진 URL 3장 가져오기
     let imageUrls: string[] = [];
-    try {
-      const unsplashRes = await fetch(`https://unsplash.com/napi/search/photos?query=${encodeURIComponent(searchKeyword)}&per_page=3&orientation=landscape`);
-      if (unsplashRes.ok) {
-        const json = await unsplashRes.json();
-        if (json.results && json.results.length > 0) {
-          // 가로 화질이 좋은 regular 사이즈 URL 최대 3개 추출 (중복 방지를 위한 강제 자르기)
-          imageUrls = json.results.slice(0, 3).map((r: { urls: { regular: string } }) => r.urls.regular);
-        }
-      }
-    } catch (e) {
-      console.error("Unsplash fetch error", e);
-    }
     
-    // 만약 Unsplash 검색에 실패했을 경우의 대비책 (Fallback)
-    if (imageUrls.length === 0) {
-       const cleanKw = searchKeyword.replace(/\s+/g, '');
+    async function fetchUnsplashImages(kw: string) {
+      try {
+        const res = await fetch(`https://unsplash.com/napi/search/photos?query=${encodeURIComponent(kw)}&per_page=3&orientation=landscape`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.results && json.results.length >= 3) {
+            return json.results.slice(0, 3).map((r: { urls: { regular: string } }) => r.urls.regular);
+          }
+        }
+      } catch (e) {
+        console.error("Unsplash fetch error:", e);
+      }
+      return [];
+    }
+
+    // 1차 시도: AI가 추출한 키워드로 검색
+    imageUrls = await fetchUnsplashImages(searchKeyword);
+    
+    // 2차 시도: 결과가 3장 미만이면 (검색어가 너무 특이한 경우) 무난하고 예쁜 키워드로 재검색
+    if (imageUrls.length < 3) {
+       imageUrls = await fetchUnsplashImages("aesthetic minimal");
+    }
+
+    // 3차 시도: 그래도 실패했다면 최후의 수단으로 절대 깨지지 않는 하드코딩된 고화질 이미지 3장 제공 (회색 고양이 동상 절대 방지)
+    if (imageUrls.length < 3) {
        imageUrls = [
-         `https://loremflickr.com/800/600/${cleanKw}?random=1`,
-         `https://loremflickr.com/800/600/${cleanKw}?random=2`,
-         `https://loremflickr.com/800/600/${cleanKw}?random=3`
+         "https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=1080&auto=format&fit=crop",
+         "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1080&auto=format&fit=crop",
+         "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1080&auto=format&fit=crop"
        ];
     }
     
