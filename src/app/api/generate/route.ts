@@ -44,8 +44,8 @@ export async function POST(req: Request) {
       if (unsplashRes.ok) {
         const json = await unsplashRes.json();
         if (json.results && json.results.length > 0) {
-          // 가로 화질이 좋은 regular 사이즈 URL 추출
-          imageUrls = json.results.map((r: { urls: { regular: string } }) => r.urls.regular);
+          // 가로 화질이 좋은 regular 사이즈 URL 최대 3개 추출 (중복 방지를 위한 강제 자르기)
+          imageUrls = json.results.slice(0, 3).map((r: { urls: { regular: string } }) => r.urls.regular);
         }
       }
     } catch (e) {
@@ -57,13 +57,12 @@ export async function POST(req: Request) {
        const cleanKw = searchKeyword.replace(/\s+/g, '');
        imageUrls = [
          `https://loremflickr.com/800/600/${cleanKw}?random=1`,
-         `https://loremflickr.com/800/600/${cleanKw}?random=2`
+         `https://loremflickr.com/800/600/${cleanKw}?random=2`,
+         `https://loremflickr.com/800/600/${cleanKw}?random=3`
        ];
     }
     
-    // 프롬프트에 주입할 이미지 리스트 텍스트 생성
-    const imageUrlsString = imageUrls.map((url, i) => `사진${i+1} : ${url}`).join('\n');
-
+    // [IMAGE_X] 플레이스홀더를 나중에 실제 태그로 치환할 예정이므로 주입용 텍스트 제거
     // 3. 본문 생성 메인 프롬프트 (가져온 사진 URL 직접 투입)
     const prompt = `
 당신은 네이버 블로그 생태계를 완벽하게 이해하고 있는 '상위 1% 전문 지식 블로거이자 브랜딩 전문가'입니다.
@@ -84,17 +83,14 @@ export async function POST(req: Request) {
    - **핵심 키워드 배치:** 타겟 키워드는 제목에 자연스럽게 녹이되 상위 노출을 고려하세요.
    - **은유와 구체성의 결합:** 자극적인 수치보다는 "완벽한 가이드", "본질에 다가가는", "전문가가 제안하는", "가장 우아한 선택" 등 신뢰도를 높이는 타이틀을 구성하세요.
 
-3. 시각적 요소 (**고화질 사진 완벽 매칭 및 분산 배치 - 매우 중요!!**):
-   - 아래에 제공된 [실제 사용 가능한 고화질 이미지 URL 목록] 3장을 **전부 한 번씩만 사용**하되, **절대로 같은 사진을 두 번 쓰거나 연달아 배치하지 마세요.**
-   - 썸네일은 시스템이 자동으로 최상단에 넣으므로 제외하고, 당신이 넣는 3장의 사진은 반드시 아래의 매칭 규칙에 따라 **글 전체에 넓게 분산**시켜야 합니다:
-     * **[위치1]** 서론(도입부)가 끝나고 본격적인 본론(1번 대주제)이 시작되기 직전 -> **"사진1"** URL 삽입
-     * **[위치2]** 본론의 중간 지점 (2번 대주제 내용 중) -> **"사진2"** URL 삽입
-     * **[위치3]** 결론(마무리 과정) 또는 마지막 인사이트 부분 -> **"사진3"** URL 삽입
-   - 사진이 들어갈 땐 반드시 앞뒤 문맥과 부드럽게 이어져야 하며, 위아래로 적당한 여백(<p><br></p>)을 두세요.
-   - 이미지 태그 작성 규칙: <br><img src='[해당_위치에_맞는_사진URL]' alt='[본문 내용과 관련된 자연스러운 사진 설명]'><br> (중요: HTML 속성에는 반드시 **홑따옴표(')**를 사용하세요!)
-
-[실제 사용 가능한 고화질 이미지 URL 목록 (반드시 이것만 사용!!)]
-${imageUrlsString}
+3. 시각적 요소 (**고화질 사진 완벽 분산 배치 - 매우 중요!!**):
+   - 본문에 들어갈 3장의 사진 위치를 지정하기 위해, 반드시 아래의 특수 예약어(Placeholder) 3개를 글의 흐름에 맞게 1번씩만 정확히 삽입하세요.
+   - 썸네일은 시스템이 자동으로 최상단에 넣으므로 제외하고, 당신이 넣는 3장의 사진 자리표시는 반드시 아래의 매칭 규칙에 따라 **글 전체에 넓게 분산**시켜야 합니다:
+     * 서론(도입부)가 끝나고 본격적인 본론(1번 대주제)이 시작되기 직전 -> **[IMAGE_1]** 텍스트 삽입
+     * 본론의 중간 지점 (2번 대주제 내용 중) -> **[IMAGE_2]** 텍스트 삽입
+     * 결론(마무리 과정) 또는 마지막 인사이트 부분 -> **[IMAGE_3]** 텍스트 삽입
+   - 절대 <img> 태그나 다른 HTML을 사용하지 말고 오직 **[IMAGE_1]**, **[IMAGE_2]**, **[IMAGE_3]** 이 세 개의 텍스트만 본문에 정확히 넣어주세요. (같은 예약어를 두 번 쓰면 절대 안 됩니다.)
+   - 예약어 위아래로 약간의 여백(<p><br></p>)을 두세요.
 
 4. 체류시간을 늘리는 세련된 본문 구조 (단순 나열 절대 금지, 가독성 극대화):
    - **가장 중요한 규칙:** 글이 답답해 보이지 않도록 **문단(Paragraph)은 최대 2~3문장**으로 짧게 끊어 쓰세요. 단조로운 줄글의 나열은 독자가 바로 이탈하게 만듭니다.
@@ -155,8 +151,35 @@ ${imageUrlsString}
       <img src="${baseUrl}/api/og?title=${encodeURIComponent(parsedResult.title)}" alt="블로그 대표 썸네일" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);" />
     </div>`;
 
+    // 4. 프로그램 단에서 안전하게 [IMAGE_X] 치환하기 (중복 방지)
+    let finalContent = parsedResult.content;
+    const usedImages = new Set<string>();
+
+    for (let i = 0; i < imageUrls.length; i++) {
+        const placeholder = `[IMAGE_${i+1}]`;
+        const imgUrl = imageUrls[i];
+        
+        // 치환용 HTML 템플릿
+        const imgTag = `<div style="text-align: center; margin: 32px 0;"><img src="${imgUrl}" alt="관련 설명 사진 ${i+1}" style="max-width: 100%; height: auto; border-radius: 8px;"></div>`;
+        
+        // 플레이스홀더가 본문에 있으면 실제로 1번만 치환
+        if (finalContent.includes(placeholder)) {
+            finalContent = finalContent.replace(placeholder, imgTag);
+            usedImages.add(imgUrl);
+        }
+    }
+
+    // 만약 AI가 플레이스홀더를 누락해서 남은 이미지가 있다면, 강제로 끝에 붙여줌
+    for (let i = 0; i < imageUrls.length; i++) {
+        const imgUrl = imageUrls[i];
+        if (!usedImages.has(imgUrl)) {
+            const imgTag = `<div style="text-align: center; margin: 32px 0;"><img src="${imgUrl}" alt="관련 설명 사진 추가" style="max-width: 100%; height: auto; border-radius: 8px;"></div>`;
+            finalContent += imgTag;
+        }
+    }
+
     // 본문 최상단에 썸네일 주입
-    parsedResult.content = thumbnailHtml + '\n' + parsedResult.content;
+    parsedResult.content = thumbnailHtml + '\n' + finalContent;
 
     return NextResponse.json(parsedResult);
   } catch (error: unknown) {
