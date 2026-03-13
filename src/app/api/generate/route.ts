@@ -16,32 +16,32 @@ export async function POST(req: Request) {
       );
     }
 
-    // 1. 키워드를 바탕으로 고화질 무료 이미지(Unsplash)에서 검색할 영어 단어 추출
+    // Pixabay API는 한글 검색도 매우 강력하므로, 영어 검색어 강박을 버리고 직관적인 키워드를 추출하도록 프롬프트 변경
     let keywordGuidance = "";
     if (blogType === 'health') {
-      keywordGuidance = "건강/라이프 블로그용이므로, 의학적/상징적 개념보다는 '신선한 과일(fresh fruits)', '채소(vegetables)', '풍경(nature landscape)', '따뜻한 차(warm tea)', '산책로(walking path)' 등 시각적으로 거부감 없고 따뜻한 사물/자연 영단어를 1~2개 선택하세요. 서양인들이 가득한 사무실 사진은 피하세요.";
+      keywordGuidance = "건강/라이프 블로그용이므로, 의학적/상징적 개념보다는 '신선한 과일', '채소', '자연 풍경', '따뜻한 차', '산책로' 등 시각적으로 거부감 없고 따뜻한 사물/자연의 '한글 혹은 영어 단어' 1~2개를 명사형태로 선택하세요. 서양인들이 가득한 사무실 사진은 피하세요.";
     } else if (blogType === 'trot') {
-      keywordGuidance = "트로트 팬덤 블로그용이므로, '마이크(microphone)', '무대 조명(stage light)', '음표(music note)', '꽃다발(bouquet)', '반짝이는 배경(sparkle background)' 등 음악과 감동을 상징하는 화려하고 감성적인 사물 영단어를 선택하세요.";
+      keywordGuidance = "트로트 팬덤 블로그용이므로, '마이크', '무대 조명', '음표', '꽃다발', '반짝이는 배경' 등 음악과 감동을 상징하는 화려하고 감성적인 사물 '한글 단어'를 명사형태로 선택하세요.";
     } else if (blogType === 'economy') {
-      keywordGuidance = "은퇴/경제 블로그용이므로, '동전(coins)', '저금통(piggy bank)', '계산기(calculator)', '지갑(wallet)', '자라나는 새싹(growing plant)', '커피잔(coffee cup)' 등 직관적이고 아기자기한 자산 관리 사물 영단어를 선택하세요. 서양인 회의실(office meeting) 사진은 절대 피하세요.";
+      keywordGuidance = "은퇴/경제 블로그용이므로, '동전', '저금통', '계산기', '지갑', '자라나는 새싹', '커피잔' 등 직관적이고 아기자기한 자산 관리 사물 '한글 단어'를 명사형태로 선택하세요. 서양인 회의실 사진은 절대 피하세요.";
     } else {
-      keywordGuidance = "추상적인 개념일 경우 서양인 사무실(office) 사진이 나오지 않도록 시각적으로 직관적이고 상징적인 사물/풍경 단어를 선택하세요.";
+      keywordGuidance = "추상적인 개념일 경우 서양인 사무실 사진이 나오지 않도록 시각적으로 직관적이고 상징적인 사물/풍경 '한글 단어'를 명사형태로 선택하세요.";
     }
 
     const translatePrompt = `당신은 검색어에서 가장 핵심적이고 시각적인 이미지를 추출하는 프롬프트 엔지니어입니다. 
-    사용자가 입력한 검색어에 가장 찰떡같이 어울리는 고품질 사진을 Unsplash에서 찾기 위해, 영어 검색어 2개를 추출하세요.
+    사용자가 입력한 검색어에 가장 찰떡같이 어울리는 고품질 사진을 픽사베이(Pixabay)에서 찾기 위해, 명확한 단어 2개를 추출하세요.
     ${keywordGuidance}
 
-    1. primary: 검색어를 가장 잘 표현하는 구체적이고 감각적인 영어 단어 1~2개
-    2. fallback: primary 검색 실패 시 사용할, 검색어의 상위 카테고리에 해당하는 매우 포괄적이고 대중적인 영어 단어 1~2개 (예: animal, nature, technology, business, food, health, interior, city, lifestyle 등 무조건 검색 결과가 수만 장씩 나오는 넓은 의미의 단어)
+    1. primary: 검색어를 가장 잘 표현하는 구체적이고 감각적인 단어 1~2개
+    2. fallback: primary 검색 실패 시 사용할, 검색어의 상위 카테고리에 해당하는 매우 포괄적이고 대중적인 단어 1~2개 (예: 자연, 기술, 비즈니스, 음식, 건강, 인테리어, 도시 등 무조건 검색 결과가 수만 장씩 나오는 넓은 의미의 단어)
     
     예시:
-    "밸류업 관련주 추천" -> {"primary": "stock graph", "fallback": "finance"}
-    "삼성전자 주가방향" -> {"primary": "trading monitor", "fallback": "business graph"}
-    "아이폰 15 프로 자급제 구매" -> {"primary": "iphone 15 pro", "fallback": "technology"}
-    "강아지 여름 산책" -> {"primary": "dog walking", "fallback": "animal"}
-    "척추 임플란트" -> {"primary": "hospital room", "fallback": "health"}
-    "다이어트 식단" -> {"primary": "healthy salad", "fallback": "food"}
+    "밸류업 관련주 추천" -> {"primary": "주식 차트", "fallback": "금융"}
+    "삼성전자 주가방향" -> {"primary": "동전 지갑", "fallback": "비즈니스"}
+    "아이폰 15 프로 자급제 구매" -> {"primary": "스마트폰", "fallback": "기술"}
+    "강아지 여름 산책" -> {"primary": "강아지 산책", "fallback": "동물"}
+    "척추 임플란트" -> {"primary": "병원", "fallback": "건강"}
+    "다이어트 식단" -> {"primary": "다이어트 샐러드", "fallback": "음식"}
 
     반드시 아래 JSON 형식으로만 응답하세요. 다른 문장 부호나 설명은 절대 붙이지 마세요.
     {"primary": "...", "fallback": "..."}
@@ -54,8 +54,8 @@ export async function POST(req: Request) {
       config: { temperature: 0.1, responseMimeType: "application/json" },
     });
     
-    // 영어 키워드 정제
-    let searchParams = { primary: "office", fallback: "business" };
+    // 키워드 정제
+    let searchParams = { primary: "사무실", fallback: "비즈니스" };
     try {
       const cleanText = (transRes.text || "{}").trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
       const parsed = JSON.parse(cleanText);
@@ -66,52 +66,54 @@ export async function POST(req: Request) {
       console.error("Failed to parse translatePrompt JSON:", e);
     }
 
-    // 2. Google Custom Search API를 통해 실제 작동하는 고화질 사진 URL 2장 가져오기 (배경용 1장 + 본문용 1장)
+    // 2. Pixabay API를 통해 실제 작동하는 고화질 사진 URL 2장 가져오기 (배경용 1장 + 본문용 1장)
     let imageUrls: string[] = [];
     
-    async function fetchGoogleImages(kw: string) {
+    async function fetchPixabayImages(kw: string) {
       try {
-        const apiKey = process.env.GOOGLE_SEARCH_API_KEY;
-        const cx = process.env.GOOGLE_SEARCH_ENGINE_ID;
+        const apiKey = process.env.PIXABAY_API_KEY;
         
-        if (!apiKey || !cx) {
-          console.warn("Google Custom Search API 키 또는 검색엔진 ID가 설정되지 않았습니다. (.env.local 확인 필요)");
+        if (!apiKey) {
+          console.warn("Pixabay API 키가 설정되지 않았습니다. (.env.local 확인 필요)");
           return [];
         }
 
-        // 구글 커스텀 검색 API 호출 (searchType=image)
-        const res = await fetch(`https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&searchType=image&q=${encodeURIComponent(kw)}&num=10&safe=active`);
+        // 픽사베이 검색 API 호출
+        // &min_width=800&min_height=600&orientation=horizontal 추가
+        const res = await fetch(`https://pixabay.com/api/?key=${apiKey}&q=${encodeURIComponent(kw)}&image_type=photo&orientation=horizontal&min_width=800&per_page=15`);
         if (res.ok) {
           const json = await res.json();
-          if (json.items && json.items.length >= 2) {
+          if (json.hits && json.hits.length >= 2) {
             // 결과 배열을 랜덤하게 섞어서 매번 다른 사진이 나오도록 함
-            const shuffled = json.items.sort(() => 0.5 - Math.random());
-            return shuffled.slice(0, 2).map((item: { link: string }) => item.link);
+            const shuffled = json.hits.sort(() => 0.5 - Math.random());
+            // 픽사베이는 largeImageURL, webformatURL 등 여러 해상도를 제공함. 큰 사이즈(largeImageURL) 사용.
+            return shuffled.slice(0, 2).map((item: { largeImageURL: string }) => item.largeImageURL);
           }
         } else {
-          console.error("Google Custom Search API Error:", res.status, await res.text());
+          console.error("Pixabay API Error:", res.status, await res.text());
         }
       } catch (e) {
-        console.error("Google fetch error:", e);
+        console.error("Pixabay fetch error:", e);
       }
       return [];
     }
 
     // 1차 시도: AI가 추출한 주력 키워드로 검색
-    imageUrls = await fetchGoogleImages(searchParams.primary);
+    imageUrls = await fetchPixabayImages(searchParams.primary);
     
     // 2차 시도: 결과가 2장 미만이면, AI가 추출한 포괄적인 fallback 키워드로 재검색 (주제 일관성 유지)
     if (imageUrls.length < 2) {
-       imageUrls = await fetchGoogleImages(searchParams.fallback);
+       imageUrls = await fetchPixabayImages(searchParams.fallback);
     }
 
-    // 3차 시도: 그래도 실패했다면 최후의 수단으로 절대 깨지지 않는 하드코딩된 고화질 이미지 2장 제공
+    // 3차 시도: 그래도 실패했다면 최후의 수단으로 절대 깨지지 않는 하드코딩된 고화질 이미지 2장 제공 (픽사베이 기본 이미지)
     if (imageUrls.length < 2) {
        imageUrls = [
-         "https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=1080&auto=format&fit=crop",
-         "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1080&auto=format&fit=crop"
+         "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885_1280.jpg",
+         "https://cdn.pixabay.com/photo/2014/02/27/16/10/flowers-276014_1280.jpg"
        ];
     }
+
     
     // [IMAGE_X] 플레이스홀더를 나중에 실제 태그로 치환할 예정이므로 주입용 텍스트 제거
     // 3. 본문 생성 메인 프롬프트 (가져온 사진 URL 직접 투입)
