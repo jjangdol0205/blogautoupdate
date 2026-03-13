@@ -238,6 +238,7 @@ ${personaGuidance}
       config: {
         responseMimeType: "application/json",
         temperature: 0.7, // slightly creative
+        maxOutputTokens: 8192,
       },
     });
 

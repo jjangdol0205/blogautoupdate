@@ -122,6 +122,20 @@ export default function Home() {
     }
   };
 
+  const handleSelectAll = (elementId: string) => {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+
+    const selection = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    
+    if (selection) {
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+  };
+
   return (
     <div className="min-h-screen pb-20">
       <div className="fixed top-0 left-0 w-full h-[50vh] bg-gradient-to-b from-green-50 to-transparent -z-10 pointer-events-none" />
@@ -306,32 +320,50 @@ export default function Home() {
                 <div>
                   <div className="flex justify-between items-center mb-2">
                     <h3 className="text-sm font-semibold text-muted">추천 제목</h3>
-                    <button 
-                      onClick={() => copyToClipboard(result.title, 'title')}
-                      className="text-xs flex items-center gap-1 text-[#00c73c] hover:bg-green-50 px-2 py-1 rounded transition-colors"
-                    >
-                      {copiedField === 'title' ? <CheckCircle2 className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                      {copiedField === 'title' ? '복사됨' : '복사'}
-                    </button>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => handleSelectAll('generated-title')}
+                        className="text-xs flex items-center gap-1 text-gray-600 hover:bg-gray-100 px-2 py-1 rounded transition-colors border border-gray-200"
+                      >
+                        전체 선택
+                      </button>
+                      <button 
+                        onClick={() => copyToClipboard(result.title, 'title')}
+                        className="text-xs flex items-center gap-1 text-[#00c73c] hover:bg-green-50 px-2 py-1 rounded transition-colors"
+                      >
+                        {copiedField === 'title' ? <CheckCircle2 className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                        {copiedField === 'title' ? '복사됨' : '제목 복사'}
+                      </button>
+                    </div>
                   </div>
-                  <div className="p-4 bg-white border border-gray-200 rounded-md shadow-sm font-semibold">
+                  <div id="generated-title" className="p-4 bg-white border border-gray-200 rounded-md shadow-sm font-semibold selection:bg-green-200 selection:text-green-900">
                     {result.title}
                   </div>
                 </div>
 
                 <div>
                   <div className="flex justify-between items-center mb-2">
-                    <h3 className="text-sm font-semibold text-muted">본문 (복사해서 바로 붙여넣으세요)</h3>
-                    <button 
-                      onClick={() => copyToClipboard(result.content, 'content', true)}
-                      className="text-xs flex items-center gap-1 text-[#00c73c] hover:bg-green-50 px-2 py-1 rounded transition-colors"
-                    >
-                      {copiedField === 'content' ? <CheckCircle2 className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                      {copiedField === 'content' ? '본문 복사됨' : '전체 복사'}
-                    </button>
+                    <h3 className="text-sm font-semibold text-muted">본문 (모바일은 <strong className="text-green-600 border-b border-green-300">본문 전체 선택</strong> 추천)</h3>
+                    <div className="flex flex-wrap justify-end gap-2">
+                      <button 
+                        onClick={() => handleSelectAll('generated-content')}
+                        className="text-xs flex items-center gap-1 text-gray-700 bg-white hover:bg-gray-50 px-3 py-1.5 rounded transition-colors border border-gray-300 shadow-sm font-medium"
+                      >
+                        <PenTool className="w-3 h-3" />
+                        본문 전체 선택
+                      </button>
+                      <button 
+                        onClick={() => copyToClipboard(result.content, 'content', true)}
+                        className="text-xs flex items-center gap-1 bg-[#00c73c] text-white hover:bg-green-600 px-3 py-1.5 rounded transition-colors shadow-sm font-medium"
+                      >
+                        {copiedField === 'content' ? <CheckCircle2 className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                        {copiedField === 'content' ? '완료' : '전체 복사'}
+                      </button>
+                    </div>
                   </div>
                   <div 
-                    className="p-5 bg-white border border-gray-200 rounded-md shadow-sm min-h-[300px] text-gray-800 leading-relaxed text-[15px] prose max-w-none"
+                    id="generated-content"
+                    className="p-5 bg-white border border-gray-200 rounded-md shadow-sm min-h-[300px] text-gray-800 leading-relaxed text-[15px] prose max-w-none selection:bg-green-200 selection:text-green-900"
                     dangerouslySetInnerHTML={{ __html: result.content }}
                   />
                 </div>
