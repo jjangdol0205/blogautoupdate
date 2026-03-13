@@ -86,8 +86,8 @@ export async function POST(req: Request) {
           if (json.hits && json.hits.length >= 4) {
             // 결과 배열을 랜덤하게 섞어서 매번 다른 사진이 나오도록 함
             const shuffled = json.hits.sort(() => 0.5 - Math.random());
-            // 픽사베이는 largeImageURL, webformatURL 등 여러 해상도를 제공함. 큰 사이즈(largeImageURL) 사용.
-            return shuffled.slice(0, 4).map((item: { largeImageURL: string }) => item.largeImageURL);
+            // 픽사베이는 largeImageURL의 직접 링크(Hotlinking)를 403 에러로 차단합니다. 따라서 외부 링크가 허용된 webformatURL을 사용해야 그림이 깨지지 않습니다.
+            return shuffled.slice(0, 4).map((item: { webformatURL: string }) => item.webformatURL);
           }
         } else {
           console.error("Pixabay API Error:", res.status, await res.text());
@@ -106,13 +106,13 @@ export async function POST(req: Request) {
        imageUrls = await fetchPixabayImages(searchParams.fallback);
     }
 
-    // 3차 시도: 그래도 실패했다면 최후의 수단으로 절대 깨지지 않는 하드코딩된 고화질 이미지 4장 제공 (픽사베이 기본 이미지)
+    // 3차 시도: 그래도 실패했다면 최후의 수단으로 절대 깨지지 않는 하드코딩된 고화질 이미지 4장 제공 (Unsplash 무제한 허용 링크)
     if (imageUrls.length < 4) {
        imageUrls = [
-         "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885_1280.jpg",
-         "https://cdn.pixabay.com/photo/2014/02/27/16/10/flowers-276014_1280.jpg",
-         "https://cdn.pixabay.com/photo/2015/12/01/20/28/road-1072821_1280.jpg",
-         "https://cdn.pixabay.com/photo/2015/06/19/21/24/avenue-815297_1280.jpg"
+         "https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=1080&auto=format&fit=crop",
+         "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1080&auto=format&fit=crop",
+         "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?q=80&w=1080&auto=format&fit=crop",
+         "https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=1080&auto=format&fit=crop"
        ];
     }
 
