@@ -66,7 +66,7 @@ export async function POST(req: Request) {
       console.error("Failed to parse translatePrompt JSON:", e);
     }
 
-    // 2. Pixabay API를 통해 실제 작동하는 고화질 사진 URL 2장 가져오기 (배경용 1장 + 본문용 1장)
+    // 2. Pixabay API를 통해 실제 작동하는 고화질 사진 URL 최대 4장 가져오기 (배경용 1장 + 본문용 최대 3장)
     let imageUrls: string[] = [];
     
     async function fetchPixabayImages(kw: string) {
@@ -83,11 +83,11 @@ export async function POST(req: Request) {
         const res = await fetch(`https://pixabay.com/api/?key=${apiKey}&q=${encodeURIComponent(kw)}&image_type=photo&orientation=horizontal&min_width=800&per_page=15`);
         if (res.ok) {
           const json = await res.json();
-          if (json.hits && json.hits.length >= 2) {
+          if (json.hits && json.hits.length >= 4) {
             // 결과 배열을 랜덤하게 섞어서 매번 다른 사진이 나오도록 함
             const shuffled = json.hits.sort(() => 0.5 - Math.random());
             // 픽사베이는 largeImageURL, webformatURL 등 여러 해상도를 제공함. 큰 사이즈(largeImageURL) 사용.
-            return shuffled.slice(0, 2).map((item: { largeImageURL: string }) => item.largeImageURL);
+            return shuffled.slice(0, 4).map((item: { largeImageURL: string }) => item.largeImageURL);
           }
         } else {
           console.error("Pixabay API Error:", res.status, await res.text());
@@ -101,16 +101,18 @@ export async function POST(req: Request) {
     // 1차 시도: AI가 추출한 주력 키워드로 검색
     imageUrls = await fetchPixabayImages(searchParams.primary);
     
-    // 2차 시도: 결과가 2장 미만이면, AI가 추출한 포괄적인 fallback 키워드로 재검색 (주제 일관성 유지)
-    if (imageUrls.length < 2) {
+    // 2차 시도: 결과가 4장 미만이면, AI가 추출한 포괄적인 fallback 키워드로 재검색 (주제 일관성 유지)
+    if (imageUrls.length < 4) {
        imageUrls = await fetchPixabayImages(searchParams.fallback);
     }
 
-    // 3차 시도: 그래도 실패했다면 최후의 수단으로 절대 깨지지 않는 하드코딩된 고화질 이미지 2장 제공 (픽사베이 기본 이미지)
-    if (imageUrls.length < 2) {
+    // 3차 시도: 그래도 실패했다면 최후의 수단으로 절대 깨지지 않는 하드코딩된 고화질 이미지 4장 제공 (픽사베이 기본 이미지)
+    if (imageUrls.length < 4) {
        imageUrls = [
          "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885_1280.jpg",
-         "https://cdn.pixabay.com/photo/2014/02/27/16/10/flowers-276014_1280.jpg"
+         "https://cdn.pixabay.com/photo/2014/02/27/16/10/flowers-276014_1280.jpg",
+         "https://cdn.pixabay.com/photo/2015/12/01/20/28/road-1072821_1280.jpg",
+         "https://cdn.pixabay.com/photo/2015/06/19/21/24/avenue-815297_1280.jpg"
        ];
     }
 
@@ -205,7 +207,7 @@ ${personaGuidance}
 3. 시각적 요소 및 썸네일 구조 (매우 중요!!):
    - 블로그 원본의 필수 레이아웃은 무조건 '대제목 -> 가벼운 인사말 -> [썸네일 이미지] -> 본격적인 본문 내용' 순서여야 합니다. 
    - 따라서 인사말이 끝나는 서론 직후에 반드시 [THUMBNAIL] 이라는 예약어를 단 1번 작성하세요.
-   - 그리고 그림이 너무 많으면 글과 어울리지 않으므로, 본론의 중간 지점에 추가 사진을 딱 1장만 넣기 위해 [IMAGE_1] 예약어를 글쓰기 흐름에 맞게 1번 삽입하세요.
+   - 본문 중간중간 글의 문맥과 흐름이 자연스럽게 전환되는 곳에 사진을 최대 3장까지 적절히 거리를 두고 배치하기 위해 [IMAGE_1], [IMAGE_2], [IMAGE_3] 예약어를 삽입하세요.
    - 절대 <img> 태그 등을 임의로 사용하지 말고 오직 위 텍스트 예약어만 넣어야 합니다.
 
 4. 가독성을 극대화하는 세련된 구조:
