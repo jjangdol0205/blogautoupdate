@@ -73,13 +73,14 @@ export async function GET(request: Request) {
             style={{
               display: 'flex',
               flexDirection: 'column',
-              alignItems: 'flex-start', // 왼쪽 정렬 (유튜브 스타일)
+              alignItems: 'center', // 다시 가운데 정렬 (네이버 블로그 스타일)
               justifyContent: 'center',
               width: '100%',
               height: '100%',
-              padding: '0 80px',
+              padding: '0 60px',
+              textAlign: 'center',
               zIndex: 10,
-              gap: '24px',
+              gap: '32px', // 여백 넓히기
             }}
           >
             {/* Category / Tag Text (High contrast badge style) */}
@@ -104,14 +105,14 @@ export async function GET(request: Request) {
             {/* Main Title Text (White with heavy black stroke and shadow) */}
             <div
               style={{
-                fontSize: ogTitle.length > 20 ? 64 : 80, // 글씨를 더 크게
+                fontSize: ogTitle.length > 20 ? 68 : 84, // 정사각형 뷰에 맞게 크루게
                 fontWeight: 900,
                 color: '#FFFFFF', // Pure White
-                lineHeight: 1.2,
+                lineHeight: 1.3,
                 wordBreak: 'keep-all',
                 letterSpacing: '-0.03em',
                 textShadow: strokeShadow,
-                maxWidth: '900px', // 가독성을 위해 너비 제한
+                maxWidth: '850px', // 가운데 정렬시 너무 넓게 퍼지지 않도록 제한
               }}
             >
               {ogTitle}
@@ -120,8 +121,8 @@ export async function GET(request: Request) {
         </div>
       ),
       {
-        width: 1200,
-        height: 630,
+        width: 1000,
+        height: 1000,
       }
     );
   } catch (e: unknown) {
