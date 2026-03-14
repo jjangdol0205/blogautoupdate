@@ -217,8 +217,8 @@ export default function Home() {
                 >
                   <option value="선택안함">카테고리 선택</option>
                   <option value="지원금 마스터">지원금 마스터 (김쌤)</option>
-                  <option value="부동산 전문가">부동산 전문가 (김쌤)</option>
-                  <option value="은퇴 경제">은퇴 경제 (전문가)</option>
+                  <option value="인생 지혜와 인간관계">인생 지혜와 인간관계 (김쌤)</option>
+                  <option value="은퇴 경제">은퇴 경제 (김쌤)</option>
                 </select>
 
                 <select
@@ -288,16 +288,16 @@ export default function Home() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setBlogType('trot')}
+                    onClick={() => setBlogType('wisdom')}
                     className={`relative px-4 py-4 rounded-xl border text-sm font-medium transition-all flex flex-col items-center justify-center gap-2 ${
-                      blogType === 'trot' 
+                      blogType === 'wisdom' 
                         ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm ring-2 ring-blue-500 ring-offset-1' 
                         : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:bg-gray-50'
                     }`}
                   >
-                    {blogType === 'trot' && <CheckCircle2 className="w-5 h-5 absolute top-3 right-3 text-blue-600" />}
-                    <span className="text-2xl">🏗️</span>
-                    <span className={blogType === 'trot' ? 'font-bold' : ''}>부동산 전문가 (김쌤)</span>
+                    {blogType === 'wisdom' && <CheckCircle2 className="w-5 h-5 absolute top-3 right-3 text-blue-600" />}
+                    <span className="text-2xl">📖</span>
+                    <span className={blogType === 'wisdom' ? 'font-bold' : ''}>인생 지혜와 인간관계 (김쌤)</span>
                   </button>
                   <button
                     type="button"
@@ -310,7 +310,7 @@ export default function Home() {
                   >
                     {blogType === 'economy' && <CheckCircle2 className="w-5 h-5 absolute top-3 right-3 text-purple-600" />}
                     <span className="text-2xl">💰</span>
-                    <span className={blogType === 'economy' ? 'font-bold' : ''}>은퇴 경제 (전문가)</span>
+                    <span className={blogType === 'economy' ? 'font-bold' : ''}>은퇴 경제 (김쌤)</span>
                   </button>
                 </div>
               </div>

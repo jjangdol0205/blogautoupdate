@@ -18,8 +18,8 @@ export async function GET(request: Request) {
     let tagText = '은퇴 후 30년, 품격 있는 경제';
     if (type === 'health') {
         tagText = '노래하는 청춘 건강 연구소';
-    } else if (type === 'trot') {
-        tagText = '부동산 전문가 김쌤의 현장 리포트';
+    } else if (type === 'wisdom') {
+        tagText = '인생 지혜와 인간관계 (김쌤)';
     }
 
     return new ImageResponse(
