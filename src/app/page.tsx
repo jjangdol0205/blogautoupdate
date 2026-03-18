@@ -219,6 +219,8 @@ export default function Home() {
                   <option value="지원금 마스터">지원금 마스터 (김쌤)</option>
                   <option value="인생 지혜와 인간관계">인생 지혜와 인간관계 (김쌤)</option>
                   <option value="은퇴 경제">은퇴 경제 (김쌤)</option>
+                  <option value="기업분석 전문가">기업분석 전문가 (김쌤)</option>
+                  <option value="투자 전문가">투자 전문가 (김쌤)</option>
                 </select>
 
                 <select
@@ -272,7 +274,7 @@ export default function Home() {
                 <label className="block text-sm font-semibold">
                   블로그 종류 (페르소나) <span className="text-red-500">*</span>
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                   <button
                     type="button"
                     onClick={() => setBlogType('health')}
@@ -297,7 +299,7 @@ export default function Home() {
                   >
                     {blogType === 'wisdom' && <CheckCircle2 className="w-5 h-5 absolute top-3 right-3 text-blue-600" />}
                     <span className="text-2xl">📖</span>
-                    <span className={blogType === 'wisdom' ? 'font-bold' : ''}>인생 지혜와 인간관계 (김쌤)</span>
+                    <span className={blogType === 'wisdom' ? 'font-bold' : ''}>인생 지혜와 인간관계</span>
                   </button>
                   <button
                     type="button"
@@ -311,6 +313,19 @@ export default function Home() {
                     {blogType === 'economy' && <CheckCircle2 className="w-5 h-5 absolute top-3 right-3 text-purple-600" />}
                     <span className="text-2xl">💰</span>
                     <span className={blogType === 'economy' ? 'font-bold' : ''}>은퇴 경제 (김쌤)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBlogType('corporate')}
+                    className={`relative px-4 py-4 rounded-xl border text-sm font-medium transition-all flex flex-col items-center justify-center gap-2 ${
+                      blogType === 'corporate' 
+                        ? 'border-indigo-500 bg-indigo-50 text-indigo-700 shadow-sm ring-2 ring-indigo-500 ring-offset-1' 
+                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {blogType === 'corporate' && <CheckCircle2 className="w-5 h-5 absolute top-3 right-3 text-indigo-600" />}
+                    <span className="text-2xl">📈</span>
+                    <span className={blogType === 'corporate' ? 'font-bold' : ''}>기업분석 (김쌤)</span>
                   </button>
                 </div>
               </div>
