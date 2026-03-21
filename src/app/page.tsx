@@ -6,6 +6,7 @@ import { Sparkles, Copy, CheckCircle2, PenTool, Loader2, AlertCircle, Lightbulb 
 export default function Home() {
   const [keyword, setKeyword] = useState("");
   const [blogType, setBlogType] = useState("health");
+  const [deviceType, setDeviceType] = useState<'desktop'|'mobile'>('desktop');
   const [isGenerating, setIsGenerating] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   
@@ -37,7 +38,7 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ keyword, blogType }),
+        body: JSON.stringify({ keyword, blogType, deviceType }),
       });
 
       const data = await response.json();
@@ -333,6 +334,41 @@ export default function Home() {
                 </div>
               </div>
 
+              {/* 기기 타입 선택 */}
+              <div className="space-y-3 pt-4 border-t border-gray-100">
+                <label className="block text-sm font-semibold">
+                  작성 포맷 선택 (네이버 앱 호환용) <span className="text-red-500">*</span>
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setDeviceType('desktop')}
+                    className={`relative px-4 py-4 rounded-xl border text-sm font-medium transition-all flex flex-col items-start gap-1 text-left ${
+                      deviceType === 'desktop' 
+                        ? 'border-blue-500 bg-blue-50 text-blue-800 shadow-sm ring-2 ring-blue-500 ring-offset-1' 
+                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {deviceType === 'desktop' && <CheckCircle2 className="w-5 h-5 absolute top-3 right-3 text-blue-600" />}
+                    <span className="font-bold text-base flex items-center gap-2">💻 PC / 일반 웹용</span>
+                    <span className="text-xs opacity-80">사진 최대 4장, 깔끔한 표(Table) 기본 적용</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDeviceType('mobile')}
+                    className={`relative px-4 py-4 rounded-xl border text-sm font-medium transition-all flex flex-col items-start gap-1 text-left ${
+                      deviceType === 'mobile' 
+                        ? 'border-[#00c73c] bg-[#f0fdf4] text-[#008f2b] shadow-sm ring-2 ring-[#00c73c] ring-offset-1' 
+                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {deviceType === 'mobile' && <CheckCircle2 className="w-5 h-5 absolute top-3 right-3 text-[#00c73c]" />}
+                    <span className="font-bold text-base flex items-center gap-2">📱 모바일 블로그 앱용</span>
+                    <span className="text-xs opacity-80">앱이 지우는 표/사진 제외, 화려한 텍스트 변주</span>
+                  </button>
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <label htmlFor="keyword" className="block text-sm font-semibold">
                   핵심 키워드 또는 주제 <span className="text-red-500">*</span>
@@ -409,6 +445,16 @@ export default function Home() {
                       </button>
                     </div>
                   </div>
+                  
+                  {/* 모바일 네이버 블로그 앱 붙여넣기 안내문 */}
+                  <div className="bg-orange-50 border border-orange-200 text-orange-800 text-xs p-3 rounded-md mb-3 flex items-start gap-2">
+                    <Lightbulb className="w-4 h-4 shrink-0 mt-0.5 text-orange-500" />
+                    <div>
+                      <span className="font-bold">모바일 꿀팁:</span> 네이버 블로그 <span className="font-semibold underline">기본 앱</span>은 외부에서 복사한 사진과 색상을 강제로 삭제합니다. <br/>
+                      스마트폰에서 사진/표를 그대로 살리려면 네이버 앱 대신 <strong>크롬이나 사파리 주소창에 m.blog.naver.com</strong>를 입력해 <span className="text-red-600 font-bold">"모바일 웹 브라우저"</span>에서 글쓰기를 누른 후 붙여넣으세요! (임시저장 후 앱에서 불러와 작성 가능)
+                    </div>
+                  </div>
+
                   <div 
                     id="generated-content"
                     className="p-5 bg-white border border-gray-200 rounded-md shadow-sm min-h-[300px] text-gray-800 leading-relaxed text-[15px] prose max-w-none selection:bg-green-200 selection:text-green-900"
