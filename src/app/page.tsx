@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sparkles, Copy, CheckCircle2, PenTool, Loader2, AlertCircle, Lightbulb } from "lucide-react";
 
 export default function Home() {
@@ -505,7 +505,7 @@ export default function Home() {
                   <div className="flex justify-between items-center mb-2">
                     <h3 className="text-sm font-semibold text-muted">본문 (스마트폰 앱 호환 지원)</h3>
                     <div className="flex flex-wrap justify-end gap-2">
-                      <button 
+                       <button 
                         onClick={() => handleSelectAllAndCopy('generated-content', 'content')}
                         className="text-xs flex items-center gap-1 bg-[#00c73c] text-white hover:bg-green-600 px-3 py-1.5 rounded transition-colors shadow-sm font-medium"
                       >
@@ -519,8 +519,8 @@ export default function Home() {
                   <div className="bg-orange-50 border border-orange-200 text-orange-800 text-xs p-3 rounded-md mb-3 flex items-start gap-2">
                     <Lightbulb className="w-4 h-4 shrink-0 mt-0.5 text-orange-500" />
                     <div>
-                      <span className="font-bold">모바일 꿀팁:</span> 네이버 블로그 <span className="font-semibold underline">기본 앱</span>은 외부에서 복사한 사진과 색상을 강제로 삭제합니다. <br/>
-                      스마트폰에서 사진/표를 그대로 살리려면 네이버 앱 대신 <strong>크롬이나 사파리 주소창에 m.blog.naver.com</strong>를 입력해 <span className="text-red-600 font-bold">"모바일 웹 브라우저"</span>에서 글쓰기를 누른 후 붙여넣으세요! (임시저장 후 앱에서 불러와 작성 가능)
+                      <span className="font-bold">네이버 공식 앱 완전 호환!</span> 네이버 블로그 <span className="font-semibold underline">순정 앱</span>은 타 사이트에서 복사한 HTML의 99%를 강제로 삭제합니다.<br/>
+                      하지만 상단의 <strong>[📱 모바일 앱용]</strong> 버튼을 누르시면 네이버 앱에서 허락하는 <strong>가장 순수한 포맷(&lt;p&gt;, &lt;br&gt;) 100%</strong>로 글이 생성되어, 줄바꿈과 여백이 파괴되지 않고 폰 앱에 그대로 예쁘게 붙여넣어집니다!
                     </div>
                   </div>
 
