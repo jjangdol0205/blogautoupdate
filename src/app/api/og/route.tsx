@@ -20,6 +20,16 @@ export async function GET(request: Request) {
         tagText = '노래하는 청춘 건강 연구소';
     } else if (type === 'wisdom') {
         tagText = '인생 지혜와 인간관계 (김쌤)';
+    } else if (type === 'it') {
+        tagText = '친절한 디지털 가이드 (최실장)';
+    } else if (type === 'travel') {
+        tagText = '숨은 투어 탐험가 (정투어)';
+    } else if (type === 'hobby') {
+        tagText = '인생 2막 취미 탐험가 (조반장)';
+    } else if (type === 'review') {
+        tagText = '살림 9단 깐깐 리뷰어 (오여사)';
+    } else if (type === 'pet') {
+        tagText = '시니어 댕냥이 집사 (윤집사)';
     }
 
     return new ImageResponse(

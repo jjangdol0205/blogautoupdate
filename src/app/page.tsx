@@ -224,7 +224,11 @@ export default function Home() {
                   <option value="인생 지혜와 인간관계">인생 지혜와 인간관계 (김쌤)</option>
                   <option value="은퇴 경제">은퇴 경제 (김쌤)</option>
                   <option value="기업분석 전문가">기업분석 전문가 (김쌤)</option>
-                  <option value="투자 전문가">투자 전문가 (김쌤)</option>
+                  <option value="친절한 디지털 가이드">디지털·IT 가이드 (최실장)</option>
+                  <option value="숨은 투어 탐험가">숨은 명소 탐험가 (정투어)</option>
+                  <option value="인생 2막 홈가드닝">홈가드닝·취미 (조반장)</option>
+                  <option value="살림 9단 깐깐 리뷰어">생활용품 찐리뷰 (오여사)</option>
+                  <option value="시니어 댕냥이 집사">댕냥이 집사 (윤집사)</option>
                 </select>
 
                 <select
@@ -278,7 +282,7 @@ export default function Home() {
                 <label className="block text-sm font-semibold">
                   블로그 종류 (페르소나) <span className="text-red-500">*</span>
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3">
                   <button
                     type="button"
                     onClick={() => setBlogType('health')}
@@ -327,9 +331,74 @@ export default function Home() {
                         : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:bg-gray-50'
                     }`}
                   >
-                    {blogType === 'corporate' && <CheckCircle2 className="w-5 h-5 absolute top-3 right-3 text-indigo-600" />}
-                    <span className="text-2xl">📈</span>
+                    {blogType === 'corporate' && <CheckCircle2 className="w-5 h-5 absolute top-3 right-3 text-red-600" />}
+                    <span className="text-2xl">🏢</span>
                     <span className={blogType === 'corporate' ? 'font-bold' : ''}>기업분석 (김쌤)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBlogType('it')}
+                    className={`relative px-4 py-4 rounded-xl border text-sm font-medium transition-all flex flex-col items-center justify-center gap-2 ${
+                      blogType === 'it' 
+                        ? 'border-indigo-500 bg-indigo-50 text-indigo-700 shadow-sm ring-2 ring-indigo-500 ring-offset-1' 
+                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {blogType === 'it' && <CheckCircle2 className="w-5 h-5 absolute top-3 right-3 text-indigo-600" />}
+                    <span className="text-2xl">📱</span>
+                    <span className={blogType === 'it' ? 'font-bold' : ''}>디지털 가이드 (최실장)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBlogType('travel')}
+                    className={`relative px-4 py-4 rounded-xl border text-sm font-medium transition-all flex flex-col items-center justify-center gap-2 ${
+                      blogType === 'travel' 
+                        ? 'border-sky-500 bg-sky-50 text-sky-700 shadow-sm ring-2 ring-sky-500 ring-offset-1' 
+                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {blogType === 'travel' && <CheckCircle2 className="w-5 h-5 absolute top-3 right-3 text-sky-600" />}
+                    <span className="text-2xl">🏕️</span>
+                    <span className={blogType === 'travel' ? 'font-bold' : ''}>국내 숨은 명소 (정투어)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBlogType('hobby')}
+                    className={`relative px-4 py-4 rounded-xl border text-sm font-medium transition-all flex flex-col items-center justify-center gap-2 ${
+                      blogType === 'hobby' 
+                        ? 'border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm ring-2 ring-emerald-500 ring-offset-1' 
+                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {blogType === 'hobby' && <CheckCircle2 className="w-5 h-5 absolute top-3 right-3 text-emerald-600" />}
+                    <span className="text-2xl">🪴</span>
+                    <span className={blogType === 'hobby' ? 'font-bold' : ''}>홈가드닝·취미 (조반장)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBlogType('review')}
+                    className={`relative px-4 py-4 rounded-xl border text-sm font-medium transition-all flex flex-col items-center justify-center gap-2 ${
+                      blogType === 'review' 
+                        ? 'border-pink-500 bg-pink-50 text-pink-700 shadow-sm ring-2 ring-pink-500 ring-offset-1' 
+                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {blogType === 'review' && <CheckCircle2 className="w-5 h-5 absolute top-3 right-3 text-pink-600" />}
+                    <span className="text-2xl">🛒</span>
+                    <span className={blogType === 'review' ? 'font-bold' : ''}>깐깐한 꿀템 (오여사)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBlogType('pet')}
+                    className={`relative px-4 py-4 rounded-xl border text-sm font-medium transition-all flex flex-col items-center justify-center gap-2 ${
+                      blogType === 'pet' 
+                        ? 'border-orange-500 bg-orange-50 text-orange-700 shadow-sm ring-2 ring-orange-500 ring-offset-1' 
+                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {blogType === 'pet' && <CheckCircle2 className="w-5 h-5 absolute top-3 right-3 text-orange-600" />}
+                    <span className="text-2xl">🐶</span>
+                    <span className={blogType === 'pet' ? 'font-bold' : ''}>시니어 댕냥이 (윤집사)</span>
                   </button>
                 </div>
               </div>
