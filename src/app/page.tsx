@@ -25,6 +25,10 @@ export default function Home() {
   const [isRecommending, setIsRecommending] = useState(false);
   const [rcmdError, setRcmdError] = useState<string | null>(null);
 
+  // AI 자율주행 트렌드 상태
+  const [aiTrends, setAiTrends] = useState<any[]>([]);
+  const [isTrendLoading, setIsTrendLoading] = useState(false);
+
   const handleRecommend = async (seedKeyword?: string) => {
     const targetKeyword = seedKeyword || keyword.trim();
     if (!targetKeyword) return;
@@ -32,6 +36,7 @@ export default function Home() {
     setIsRecommending(true);
     setRcmdError(null);
     setRecommendations([]);
+    setAiTrends([]); // AI 트렌드 초기화
 
     try {
       const response = await fetch('/api/recommend-keywords', {
@@ -48,6 +53,28 @@ export default function Home() {
       setRcmdError(error.message);
     } finally {
       setIsRecommending(false);
+    }
+  };
+
+  const fetchAiTrendMiner = async () => {
+    setIsTrendLoading(true);
+    setRecommendations([]); // 기존 추천 초기화
+    try {
+      const res = await fetch('/api/agent-trend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ goodUrl, badUrl }),
+      });
+      const data = await res.json();
+      if (res.ok && data.trends) {
+        setAiTrends(data.trends);
+      } else {
+        alert(data.error || 'AI 트렌드 발굴에 실패했습니다.');
+      }
+    } catch (e) {
+      alert('네트워크 오류가 발생했습니다.');
+    } finally {
+      setIsTrendLoading(false);
     }
   };
   const handleGenerate = async (e: React.FormEvent) => {
@@ -271,7 +298,50 @@ export default function Home() {
                       </button>
                     ))}
                   </div>
+
+                  {/* AI 자율주행 트렌드 마이너 버튼 */}
+                  <div className="mt-8 pt-6 border-t border-blue-100 flex flex-col items-center">
+                    <p className="text-sm text-blue-800 font-bold mb-3 flex items-center gap-1">
+                      <Lightbulb className="w-4 h-4 text-purple-600" />
+                      직접 고르기 귀찮으시다면? AI가 알아서 빈집을 털어옵니다!
+                    </p>
+                    <button
+                      type="button"
+                      onClick={fetchAiTrendMiner}
+                      disabled={isTrendLoading || isRecommending}
+                      className="w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-2xl shadow-lg transition-all animate-pulse hover:animate-none flex items-center justify-center gap-2"
+                    >
+                      {isTrendLoading ? <><Loader2 className="w-5 h-5 animate-spin" /> 구글 & 네이버 실시간 트렌드 분석 중... (약 15초)</> : "🤖 AI 자율주행 모드 (트렌드 & 니치 자동 발굴)"}
+                    </button>
+                  </div>
                 </div>
+
+                {/* AI 트렌드 결과 표시 */}
+                {aiTrends.length > 0 && !isTrendLoading && (
+                  <div className="mt-8 bg-purple-50 p-6 rounded-2xl border border-purple-100 shadow-sm animate-fade-in">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                      <span className="bg-purple-600 text-white text-xs px-2 py-1 rounded-md">✨ AI 픽</span>
+                      오늘 새롭게 터진 황금 틈새 키워드 TOP 5
+                    </h3>
+                    <div className="flex flex-col gap-3">
+                      {aiTrends.map((trend, i) => (
+                        <div 
+                          key={i}
+                          onClick={() => { setKeyword(trend.keyword); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                          className="p-4 bg-white border border-purple-100 rounded-xl hover:border-purple-400 cursor-pointer transition-all shadow-sm group"
+                        >
+                          <div className="flex justify-between items-start mb-2">
+                            <span className="font-extrabold text-purple-900 text-lg group-hover:text-purple-600">{trend.keyword}</span>
+                            <span className="text-xs font-semibold px-2 py-1 bg-gray-50 border border-gray-200 rounded text-gray-600">
+                              월 조회: {trend.monthlyTotalCnt > 0 ? `${trend.monthlyTotalCnt.toLocaleString()}회` : '신규/미집계'}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-600 bg-gray-50 border border-gray-100 p-2.5 rounded-lg leading-snug">{trend.reason}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div className="space-y-2 mt-4 pt-4 border-t border-gray-100">
                   <label htmlFor="keyword" className="block text-sm font-semibold flex items-center justify-between">
