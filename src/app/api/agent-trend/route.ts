@@ -4,6 +4,8 @@ import crypto from "crypto";
 
 const ai = new GoogleGenAI({});
 
+export const maxDuration = 60; // Vercel 서버리스 함수 타임아웃 최대 연장
+
 export async function POST(req: Request) {
   try {
     const { goodUrl, badUrl } = await req.json().catch(() => ({}));

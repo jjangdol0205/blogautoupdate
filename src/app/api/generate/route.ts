@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 
 const ai = new GoogleGenAI({});
 
+export const maxDuration = 60; // Vercel 서버리스 함수 타임아웃 최대 연장
+
 export async function POST(req: Request) {
   try {
     const { keyword, deviceType = 'desktop', goodUrl = "", badUrl = "" } = await req.json();
