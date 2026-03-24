@@ -11,6 +11,17 @@ export async function GET(request: Request) {
 
     // 해시태그 형식으로 변환 (앞에 #이 없으면 단어별로 # 추가)
     const topTags = top.includes('#') ? top : `#${top.split(' ').filter(t => t.trim() !== '').join(' #')}`;
+    
+    // 글자 길이에 따른 동적 폰트 사이즈 (글자 짤림 방지)
+    const getFontSize = (text: string) => {
+      if (text.length > 12) return 80;
+      if (text.length > 8) return 110;
+      if (text.length > 5) return 140;
+      return 180;
+    };
+    
+    const midSize = getFontSize(mid);
+    const bottomSize = getFontSize(bottom);
 
     return new ImageResponse(
       (
@@ -69,12 +80,17 @@ export async function GET(request: Request) {
             <div
               style={{
                 display: 'flex',
-                fontSize: mid.length > 5 ? 150 : 200,
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+                textAlign: 'center',
+                wordBreak: 'keep-all',
+                fontSize: midSize,
                 fontWeight: 900,
                 color: '#2b8f58', // 더 진하고 선명한 녹색
-                lineHeight: 1.05,
+                lineHeight: 1.15,
                 letterSpacing: '-0.05em',
-                marginBottom: '10px',
+                marginBottom: '15px',
+                padding: '0 20px',
               }}
             >
               {mid}
@@ -84,12 +100,17 @@ export async function GET(request: Request) {
             <div
               style={{
                 display: 'flex',
-                fontSize: bottom.length > 5 ? 150 : 200,
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+                textAlign: 'center',
+                wordBreak: 'keep-all',
+                fontSize: bottomSize,
                 fontWeight: 900,
                 color: '#111111',
-                lineHeight: 1.05,
+                lineHeight: 1.15,
                 letterSpacing: '-0.05em',
                 marginBottom: '80px',
+                padding: '0 20px',
               }}
             >
               {bottom}
@@ -111,9 +132,9 @@ export async function GET(request: Request) {
             </div>
             
             {/* Decorative dots to emulate the floating emojis vibe (for broad topic safety) */}
-            <div style={{ position: 'absolute', display: 'flex', left: '100px', top: '380px', width: '40px', height: '40px', borderRadius: '20px', backgroundColor: '#fde047', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }} />
-            <div style={{ position: 'absolute', display: 'flex', right: '120px', bottom: '280px', width: '50px', height: '50px', borderRadius: '25px', backgroundColor: '#ef4444', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }} />
-            <div style={{ position: 'absolute', display: 'flex', right: '160px', top: '180px', width: '24px', height: '24px', borderRadius: '12px', backgroundColor: '#3b82f6', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }} />
+            <div style={{ position: 'absolute', display: 'flex', left: '60px', top: '100px', width: '36px', height: '36px', borderRadius: '18px', backgroundColor: '#fde047', opacity: 0.8 }} />
+            <div style={{ position: 'absolute', display: 'flex', right: '80px', bottom: '140px', width: '44px', height: '44px', borderRadius: '22px', backgroundColor: '#ef4444', opacity: 0.8 }} />
+            <div style={{ position: 'absolute', display: 'flex', right: '110px', top: '120px', width: '20px', height: '20px', borderRadius: '10px', backgroundColor: '#3b82f6', opacity: 0.8 }} />
           </div>
         </div>
       ),
