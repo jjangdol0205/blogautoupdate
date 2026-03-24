@@ -77,13 +77,20 @@ export default function Home() {
       setIsTrendLoading(false);
     }
   };
-  const handleGenerate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!keyword.trim()) return;
+  const handleGenerate = async (e?: React.FormEvent | null, overrideKeyword?: string) => {
+    if (e) e.preventDefault();
+    const currentKeyword = overrideKeyword || keyword;
+    if (!currentKeyword.trim()) return;
+
+    if (overrideKeyword) {
+      setKeyword(overrideKeyword);
+    }
 
     setIsGenerating(true);
     setResult(null);
     setErrorMsg(null);
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
     try {
       const response = await fetch('/api/generate', {
@@ -91,7 +98,7 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ keyword, deviceType, goodUrl, badUrl }),
+        body: JSON.stringify({ keyword: currentKeyword, deviceType, goodUrl, badUrl }),
       });
 
       const data = await response.json();
@@ -327,8 +334,7 @@ export default function Home() {
                       {aiTrends.map((trend, i) => (
                         <div 
                           key={i}
-                          onClick={() => { setKeyword(trend.keyword); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                          className="p-4 bg-white border border-purple-100 rounded-xl hover:border-purple-400 cursor-pointer transition-all shadow-sm group"
+                          className="p-4 bg-white border border-purple-100 rounded-xl shadow-sm group"
                         >
                           <div className="flex justify-between items-start mb-2">
                             <span className="font-extrabold text-purple-900 text-lg group-hover:text-purple-600">{trend.keyword}</span>
@@ -336,7 +342,14 @@ export default function Home() {
                               월 조회: {trend.monthlyTotalCnt > 0 ? `${trend.monthlyTotalCnt.toLocaleString()}회` : '신규/미집계'}
                             </span>
                           </div>
-                          <p className="text-sm text-gray-600 bg-gray-50 border border-gray-100 p-2.5 rounded-lg leading-snug">{trend.reason}</p>
+                          <p className="text-sm text-gray-600 bg-gray-50 border border-gray-100 p-2.5 rounded-lg leading-snug mb-3">{trend.reason}</p>
+                          <button
+                            type="button"
+                            onClick={() => handleGenerate(null, trend.keyword)}
+                            className="w-full py-2.5 bg-purple-50 hover:bg-purple-600 text-purple-700 hover:text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 border border-purple-200 hover:border-purple-600 text-sm"
+                          >
+                            <PenTool className="w-4 h-4" /> 이 키워드로 즉시 자동 생성
+                          </button>
                         </div>
                       ))}
                     </div>
@@ -422,11 +435,12 @@ export default function Home() {
                         <button
                           key={idx}
                           type="button"
-                          onClick={() => setKeyword(rec.keyword)}
-                          className="text-sm px-3 py-1.5 bg-white border border-gray-300 rounded-full hover:border-[#00c73c] hover:text-[#00c73c] transition-all flex items-center gap-1.5 shadow-sm"
+                          onClick={() => handleGenerate(null, rec.keyword)}
+                          className="text-sm px-3 py-1.5 bg-white border border-gray-300 rounded-full hover:border-[#00c73c] hover:bg-green-50 hover:text-[#00c73c] transition-all flex items-center gap-1.5 shadow-sm"
                         >
                           <span className="font-semibold">{rec.keyword}</span>
                           <span className="text-gray-400 text-xs text-nowrap">({rec.monthlyTotalCnt.toLocaleString()} 건)</span>
+                          <PenTool className="w-3 h-3 text-[#00c73c] ml-1 opacity-0 hover:opacity-100 transition-opacity hidden sm:block" />
                         </button>
                       ))}
                     </div>
