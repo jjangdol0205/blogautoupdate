@@ -32,56 +32,51 @@ export async function GET(request: Request) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: '#111111', // 아웃라인 블랙 배경 (강렬한 대비)
+            backgroundColor: '#38A169', // 산뜻하고 고급스러운 녹색 바탕
             fontFamily: 'sans-serif',
             position: 'relative',
             overflow: 'hidden',
           }}
         >
           {/* Background Text Pattern */}
-          <div style={{ position: 'absolute', top: '-10px', left: '40px', display: 'flex', fontSize: 130, fontWeight: 900, color: 'rgba(255, 234, 0, 0.08)', letterSpacing: '0.05em' }}>
-            URGENT INFO
+          <div style={{ position: 'absolute', top: '-10px', left: '40px', display: 'flex', fontSize: 130, fontWeight: 900, color: 'rgba(0, 0, 0, 0.04)', letterSpacing: '0.05em' }}>
+            BLOG POST
           </div>
-          <div style={{ position: 'absolute', bottom: '-10px', right: '40px', display: 'flex', fontSize: 130, fontWeight: 900, color: 'rgba(255, 234, 0, 0.08)', letterSpacing: '0.05em' }}>
-            HOT TOPIC
+          <div style={{ position: 'absolute', bottom: '-10px', right: '40px', display: 'flex', fontSize: 130, fontWeight: 900, color: 'rgba(0, 0, 0, 0.04)', letterSpacing: '0.05em' }}>
+            BLOG POST
           </div>
 
-          {/* Inner High-Contrast Yellow Card */}
+          {/* Inner Premium White Box */}
           <div
             style={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: '#FFEA00', // 시선 강탈 형광 노란색
+              backgroundColor: '#FFFFFF',
               width: '880px',
               height: '880px',
-              borderRadius: '70px',
-              border: '12px solid #FFFFFF', // 흰색 굵은 테두리로 분리감 극대화
-              boxShadow: '0 40px 80px rgba(0,0,0,0.4)',
+              borderRadius: '120px', // 매우 둥근 고급스러운 사각형
+              boxShadow: '0 40px 80px rgba(0,0,0,0.15)',
               position: 'relative',
               padding: '40px',
             }}
           >
-            {/* Top Hashtags (Red Highlight) */}
+            {/* Top Hashtags */}
             <div
               style={{
                 display: 'flex',
-                fontSize: 40,
-                color: '#FFFFFF',
-                backgroundColor: '#E60000', // 빨간색 배경에 흰 텍스트
-                padding: '10px 25px',
-                borderRadius: '20px',
-                fontWeight: 900,
-                marginBottom: '60px',
+                fontSize: 36,
+                color: '#555555',
+                fontWeight: 600,
+                marginBottom: '70px',
                 letterSpacing: '-0.02em',
-                boxShadow: '0 10px 20px rgba(230,0,0,0.3)',
               }}
             >
               {topTags}
             </div>
 
-            {/* Mid Huge Text (Black) */}
+            {/* Mid Huge Text (Green) */}
             <div
               style={{
                 display: 'flex',
@@ -89,20 +84,19 @@ export async function GET(request: Request) {
                 justifyContent: 'center',
                 textAlign: 'center',
                 wordBreak: 'keep-all',
-                fontSize: midSize + 10,
+                fontSize: midSize,
                 fontWeight: 900,
-                color: '#000000', // 완전 검정
-                lineHeight: 1.1,
+                color: '#2b8f58', // 텍스트 컬러 녹색
+                lineHeight: 1.15,
                 letterSpacing: '-0.05em',
-                marginBottom: '10px',
-                padding: '0 10px',
-                textShadow: '0px 8px 15px rgba(0,0,0,0.1)',
+                marginBottom: '15px',
+                padding: '0 20px',
               }}
             >
               {mid}
             </div>
 
-            {/* Bottom Huge Text (Red emphasis or Black) */}
+            {/* Bottom Huge Text (Black) */}
             <div
               style={{
                 display: 'flex',
@@ -112,21 +106,35 @@ export async function GET(request: Request) {
                 wordBreak: 'keep-all',
                 fontSize: bottomSize,
                 fontWeight: 900,
-                color: '#E60000', // 강렬한 빨간색
-                lineHeight: 1.1,
+                color: '#111111',
+                lineHeight: 1.15,
                 letterSpacing: '-0.05em',
                 marginBottom: '80px',
-                padding: '0 10px',
-                textShadow: '0px 8px 15px rgba(230,0,0,0.15)',
+                padding: '0 20px',
               }}
             >
               {bottom}
             </div>
+            
+            {/* Small decorative text at the bottom */}
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '60px',
+                display: 'flex',
+                fontSize: 24,
+                color: '#aaaaaa',
+                fontWeight: 600,
+                letterSpacing: '0.05em',
+              }}
+            >
+              @TREND_AUTO_GENERATOR
+            </div>
 
-            {/* Decorative dots changed to attention grabbing diagonal stripes or simple dots */}
-            <div style={{ position: 'absolute', display: 'flex', left: '40px', top: '80px', width: '40px', height: '40px', borderRadius: '20px', backgroundColor: '#000000', opacity: 0.9 }} />
-            <div style={{ position: 'absolute', display: 'flex', right: '60px', bottom: '100px', width: '50px', height: '50px', borderRadius: '25px', backgroundColor: '#000000', opacity: 0.9 }} />
-            <div style={{ position: 'absolute', display: 'flex', right: '90px', top: '90px', width: '20px', height: '20px', borderRadius: '10px', backgroundColor: '#E60000', opacity: 0.9 }} />
+            {/* Decorative dots in the far corners */}
+            <div style={{ position: 'absolute', display: 'flex', left: '60px', top: '100px', width: '36px', height: '36px', borderRadius: '18px', backgroundColor: '#fde047', opacity: 0.8 }} />
+            <div style={{ position: 'absolute', display: 'flex', right: '80px', bottom: '140px', width: '44px', height: '44px', borderRadius: '22px', backgroundColor: '#ef4444', opacity: 0.8 }} />
+            <div style={{ position: 'absolute', display: 'flex', right: '110px', top: '120px', width: '20px', height: '20px', borderRadius: '10px', backgroundColor: '#3b82f6', opacity: 0.8 }} />
           </div>
         </div>
       ),
