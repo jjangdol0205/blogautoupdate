@@ -72,13 +72,20 @@ export default function Home() {
       setIsTrendLoading(false);
     }
   };
-  const handleGenerate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!keyword.trim()) return;
+  const handleGenerate = async (e?: React.FormEvent | null, overrideKeyword?: string) => {
+    if (e) e.preventDefault();
+    const currentKeyword = overrideKeyword || keyword;
+    if (!currentKeyword.trim()) return;
+
+    if (overrideKeyword) {
+      setKeyword(overrideKeyword);
+    }
 
     setIsGenerating(true);
     setResult(null);
     setErrorMsg(null);
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
     try {
       const response = await fetch('/api/generate', {
@@ -86,19 +93,112 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ keyword, deviceType }),
+        body: JSON.stringify({ keyword: currentKeyword, deviceType }),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.error || '생성 중 오류가 발생했습니다.');
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || '생성 중 오류가 발생했습니다.');
       }
 
-      setResult(data);
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("스트림을 읽을 수 없습니다.");
+
+      const decoder = new TextDecoder();
+      let aiText = "";
+      let metaData: any = null;
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        
+        let boundary = buffer.indexOf('\n\n');
+        while (boundary !== -1) {
+           const message = buffer.substring(0, boundary);
+           buffer = buffer.substring(boundary + 2);
+           
+           if (message.startsWith('data: ')) {
+               try {
+                   const data = JSON.parse(message.substring(6));
+                   if (data.type === 'meta') {
+                       metaData = data;
+                   } else if (data.type === 'text') {
+                       aiText += data.text;
+                       
+                       let currentTitle = "블로그 타이틀 작성 중...";
+                       const titleMatch = aiText.match(/\[TITLE\]([\s\S]*?)\[\/TITLE\]/i);
+                       if (titleMatch) {
+                           currentTitle = titleMatch[1].trim();
+                       } else if (aiText.includes('[TITLE]')) {
+                           currentTitle = aiText.split(/\[TITLE\]/i)[1].trim(); 
+                       }
+
+                       let currentContent = aiText;
+                       if (aiText.includes('[CONTENT]')) {
+                           currentContent = aiText.split(/\[CONTENT\]/i)[1] || "";
+                       }
+                       currentContent = currentContent.replace(/\[\/CONTENT\]/i, '').trim();
+
+                       if (metaData) {
+                           if (currentContent.includes('[THUMBNAIL]')) {
+                               currentContent = currentContent.replace('[THUMBNAIL]', metaData.thumbnailHtml);
+                           } else if (metaData.thumbnailHtml) {
+                               currentContent = metaData.thumbnailHtml + '<br/>' + currentContent;
+                           }
+                           
+                           if (metaData.images && metaData.images.length > 0) {
+                               metaData.images.forEach((imgUrl: string, idx: number) => {
+                                   const ph = `[IMAGE_${idx+1}]`;
+                                   const imgTag = `<div style="text-align: center; margin: 32px 0;"><img src="${imgUrl}" style="max-width: 100%; height: auto; border-radius: 8px;"></div>`;
+                                   if (currentContent.includes(ph)) {
+                                       currentContent = currentContent.replace(ph, imgTag);
+                                   }
+                               });
+                           }
+                       }
+                       
+                       setResult({ title: currentTitle, content: currentContent + '<span className="inline-block w-2 h-4 ml-1 bg-[#00c73c] animate-pulse"></span>' });
+                   }
+               } catch(e) { console.error("SSE parse error", e, message); }
+           }
+           boundary = buffer.indexOf('\n\n');
+        }
+      }
+
+      // 텍스트 스트리밍 완료 후 최종 구조 완성 처리
+      let finalContent = aiText;
+      if (finalContent.includes('[CONTENT]')) finalContent = finalContent.split(/\[CONTENT\]/i)[1] || "";
+      finalContent = finalContent.replace(/\[\/CONTENT\]/i, '').trim();
+      
+      if (metaData) {
+          if (finalContent.includes('[THUMBNAIL]')) {
+              finalContent = finalContent.replace('[THUMBNAIL]', metaData.thumbnailHtml);
+          } else {
+              finalContent = metaData.thumbnailHtml + '<br/>' + finalContent;
+          }
+          
+          if (metaData.images) {
+              metaData.images.forEach((imgUrl: string, idx: number) => {
+                  const ph = `[IMAGE_${idx+1}]`;
+                  const imgTag = `<div style="text-align: center; margin: 32px 0;"><img src="${imgUrl}" style="max-width: 100%; height: auto; border-radius: 8px;"></div>`;
+                  if (finalContent.includes(ph)) {
+                     finalContent = finalContent.replace(ph, imgTag);
+                  } else {
+                     finalContent += imgTag; // 누락된 사진들을 맨 밑에 추가
+                  }
+              });
+          }
+      }
+      
+      const finalTitle = aiText.match(/\[TITLE\]([\s\S]*?)\[\/TITLE\]/i)?.[1]?.trim() || "제목 완성";
+      setResult({ title: finalTitle, content: finalContent });
+
     } catch (error: unknown) {
       console.error(error);
       if (error instanceof Error) {
+        if (error.name === 'AbortError') return;
         setErrorMsg(error.message);
       } else {
         setErrorMsg('알 수 없는 오류가 발생했습니다.');
@@ -322,8 +422,7 @@ export default function Home() {
                       {aiTrends.map((trend, i) => (
                         <div 
                           key={i}
-                          onClick={() => { setKeyword(trend.keyword); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                          className="p-4 bg-white border border-purple-100 rounded-xl hover:border-purple-400 cursor-pointer transition-all shadow-sm group"
+                          className="p-4 bg-white border border-purple-100 rounded-xl shadow-sm group"
                         >
                           <div className="flex justify-between items-start mb-2">
                             <span className="font-extrabold text-purple-900 text-lg group-hover:text-purple-600">{trend.keyword}</span>
@@ -331,7 +430,14 @@ export default function Home() {
                               월 조회: {trend.monthlyTotalCnt > 0 ? `${trend.monthlyTotalCnt.toLocaleString()}회` : '신규/미집계'}
                             </span>
                           </div>
-                          <p className="text-sm text-gray-600 bg-gray-50 border border-gray-100 p-2.5 rounded-lg leading-snug">{trend.reason}</p>
+                          <p className="text-sm text-gray-600 bg-gray-50 border border-gray-100 p-2.5 rounded-lg leading-snug mb-3">{trend.reason}</p>
+                          <button
+                            type="button"
+                            onClick={() => handleGenerate(null, trend.keyword)}
+                            className="w-full py-2.5 bg-purple-50 hover:bg-purple-600 text-purple-700 hover:text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 border border-purple-200 hover:border-purple-600 text-sm"
+                          >
+                            <PenTool className="w-4 h-4" /> 이 키워드로 즉시 자동 생성
+                          </button>
                         </div>
                       ))}
                     </div>
@@ -378,11 +484,12 @@ export default function Home() {
                         <button
                           key={idx}
                           type="button"
-                          onClick={() => setKeyword(rec.keyword)}
-                          className="text-sm px-3 py-1.5 bg-white border border-gray-300 rounded-full hover:border-[#00c73c] hover:text-[#00c73c] transition-all flex items-center gap-1.5 shadow-sm"
+                          onClick={() => handleGenerate(null, rec.keyword)}
+                          className="text-sm px-3 py-1.5 bg-white border border-gray-300 rounded-full hover:border-[#00c73c] hover:bg-green-50 hover:text-[#00c73c] transition-all flex items-center gap-1.5 shadow-sm"
                         >
                           <span className="font-semibold">{rec.keyword}</span>
                           <span className="text-gray-400 text-xs text-nowrap">({rec.monthlyTotalCnt.toLocaleString()} 건)</span>
+                          <PenTool className="w-3 h-3 text-[#00c73c] ml-1 opacity-0 hover:opacity-100 transition-opacity hidden sm:block" />
                         </button>
                       ))}
                     </div>

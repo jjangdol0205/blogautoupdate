@@ -5,32 +5,23 @@ export const runtime = 'edge';
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const title = searchParams.get('title');
-    const type = searchParams.get('type') || 'economy';
-    const bg = searchParams.get('bg'); // Background image URL
+    const top = searchParams.get('top') || '블로그 왕초보 필수';
+    const mid = searchParams.get('mid') || '블로그';
+    const bottom = searchParams.get('bottom') || '챌린지';
 
-    const hasTitle = title && title.length > 0;
-    const ogTitle = hasTitle ? title : '당신을 위한 프리미엄 정보';
-
-    // 텍스트 테두리 효과 (Black stroke effect)
-    const strokeShadow = '2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000';
-
-    let tagText = '은퇴 후 30년, 품격 있는 경제';
-    if (type === 'health') {
-        tagText = '노래하는 청춘 건강 연구소';
-    } else if (type === 'wisdom') {
-        tagText = '인생 지혜와 인간관계 (김쌤)';
-    } else if (type === 'it') {
-        tagText = '친절한 디지털 가이드 (최실장)';
-    } else if (type === 'travel') {
-        tagText = '숨은 투어 탐험가 (정투어)';
-    } else if (type === 'hobby') {
-        tagText = '인생 2막 취미 탐험가 (조반장)';
-    } else if (type === 'review') {
-        tagText = '살림 9단 깐깐 리뷰어 (오여사)';
-    } else if (type === 'pet') {
-        tagText = '시니어 댕냥이 집사 (윤집사)';
-    }
+    // 해시태그 형식으로 변환 (앞에 #이 없으면 단어별로 # 추가)
+    const topTags = top.includes('#') ? top : `#${top.split(' ').filter(t => t.trim() !== '').join(' #')}`;
+    
+    // 글자 길이에 따른 동적 폰트 사이즈 (글자 짤림 방지)
+    const getFontSize = (text: string) => {
+      if (text.length > 12) return 80;
+      if (text.length > 8) return 110;
+      if (text.length > 5) return 140;
+      return 180;
+    };
+    
+    const midSize = getFontSize(mid);
+    const bottomSize = getFontSize(bottom);
 
     return new ImageResponse(
       (
@@ -39,120 +30,120 @@ export async function GET(request: Request) {
             height: '100%',
             width: '100%',
             display: 'flex',
-            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: '#111',
+            backgroundImage: 'linear-gradient(to bottom right, #7C3AED, #0EA5E9)', // 진한 보라색 -> 맑은 스카이블루 (영롱한 오로라 그라데이션)
             fontFamily: 'sans-serif',
             position: 'relative',
+            overflow: 'hidden',
           }}
         >
-          {/* Background Image */}
-          {bg ? (
-            <img 
-              src={bg} 
-              alt="Background" 
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-              }} 
-            />
-          ) : (
-            <div style={{
-              position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-              backgroundImage: 'linear-gradient(135deg, #1f1f1f 0%, #050505 100%)'
-            }} />
-          )}
+          {/* Background Text Pattern - Subtle Typography */}
+          <div style={{ position: 'absolute', top: '-10px', left: '40px', display: 'flex', fontSize: 130, fontWeight: 900, color: 'rgba(255, 255, 255, 0.05)', letterSpacing: '0.05em' }}>
+            DAILY INSIGHT
+          </div>
+          <div style={{ position: 'absolute', bottom: '-10px', right: '40px', display: 'flex', fontSize: 130, fontWeight: 900, color: 'rgba(255, 255, 255, 0.05)', letterSpacing: '0.05em' }}>
+            TREND INFO
+          </div>
 
-          {/* Dim Overlay for extremely high text readability */}
-          <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            backgroundColor: 'rgba(0, 0, 0, 0.45)', // Darken background slightly
-          }} />
+          {/* Glowing Orbs behind the Glass Card */}
+          <div style={{ position: 'absolute', top: '100px', left: '150px', width: '300px', height: '300px', borderRadius: '150px', backgroundColor: '#F472B6', opacity: 0.8, filter: 'blur(50px)' }} />
+          <div style={{ position: 'absolute', bottom: '100px', right: '150px', width: '350px', height: '350px', borderRadius: '175px', backgroundColor: '#34D399', opacity: 0.6, filter: 'blur(60px)' }} />
 
-          {/* Text Content */}
+          {/* Inner Premium Glassmorphism Box */}
           <div
             style={{
               display: 'flex',
               flexDirection: 'column',
-              alignItems: 'center', // 다시 가운데 정렬 (네이버 블로그 스타일)
+              alignItems: 'center',
               justifyContent: 'center',
-              width: '100%',
-              height: '100%',
-              padding: '0 60px',
-              textAlign: 'center',
-              zIndex: 10,
-              gap: '40px', // 여백 넓히기
+              backgroundColor: 'rgba(255, 255, 255, 0.92)', // 유리를 연상케 하는 반투명 화이트
+              width: '880px',
+              height: '880px',
+              borderRadius: '80px', // 세련된 둥근 모서리
+              boxShadow: '0 40px 100px rgba(0,0,0,0.25)', // 깊이감 있는 그림자
+              border: '4px solid rgba(255, 255, 255, 0.5)', // 반사되는 느낌의 얇은 테두리
+              position: 'relative',
+              padding: '40px',
             }}
           >
-            {/* Top Red Badge [필독] / 긴급 안내 스타일 */}
+            {/* Top Hashtags (Sleek Pill Shape) */}
             <div
               style={{
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: '#FF0000', // YouTube Red
-                color: '#FFFFFF',
-                fontSize: 32,
-                fontWeight: 900,
-                letterSpacing: '0.1em',
-                padding: '12px 32px',
-                borderRadius: '12px',
-                boxShadow: '0 8px 16px rgba(0,0,0,0.5)',
-                marginBottom: '-10px',
+                fontSize: 34,
+                color: '#4F46E5', // 깊은 인디고 색상
+                backgroundColor: 'rgba(79, 70, 229, 0.08)',
+                padding: '12px 30px',
+                borderRadius: '30px',
+                fontWeight: 700,
+                marginBottom: '70px',
+                letterSpacing: '-0.02em',
               }}
             >
-              🔥 [필독] {tagText}
+              {topTags}
             </div>
 
-            {/* Main Title Text (White with heavy glowing red/black stroke and shadow) */}
+            {/* Mid Huge Text (Dark Slate Navy) */}
             <div
               style={{
-                fontSize: ogTitle.length > 20 ? 76 : 96, // 글자 크기 대폭 상향
-                fontWeight: 900,
-                color: '#FFFFFF', // Pure White
-                lineHeight: 1.35,
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+                textAlign: 'center',
                 wordBreak: 'keep-all',
-                letterSpacing: '-0.04em',
-                textShadow: '0 0 40px rgba(255,0,0,0.8), 2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 3px 3px 0 #000, -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000, 0 10px 20px rgba(0,0,0,0.8)',
-                maxWidth: '900px', // 가운데 정렬시 너무 넓게 퍼지지 않도록 제한
+                fontSize: midSize,
+                fontWeight: 900,
+                color: '#1E293B', // 거의 검정에 가까운 네이비 (가독성 최고)
+                lineHeight: 1.15,
+                letterSpacing: '-0.05em',
+                marginBottom: '15px',
+                padding: '0 20px',
               }}
             >
-              {ogTitle}
+              {mid}
             </div>
 
-            {/* 하단 강조 텍스트 */}
+            {/* Bottom Huge Text (Electric Blue) */}
             <div
               style={{
                 display: 'flex',
-                alignItems: 'center',
+                flexWrap: 'wrap',
                 justifyContent: 'center',
-                backgroundColor: '#FFEB3B', // Yellow
-                color: '#000000',
-                fontSize: 36,
+                textAlign: 'center',
+                wordBreak: 'keep-all',
+                fontSize: bottomSize,
                 fontWeight: 900,
-                padding: '10px 40px',
-                borderRadius: '50px',
-                marginTop: '10px',
-                boxShadow: '0 4px 10px rgba(0,0,0,0.5)',
+                color: '#2563EB', // 세련되고 눈에 띄는 블루
+                lineHeight: 1.15,
+                letterSpacing: '-0.05em',
+                marginBottom: '80px',
+                padding: '0 20px',
               }}
             >
-              지금 당장 확인하세요!
+              {bottom}
+            </div>
+
+            {/* Small decorative signature at the bottom */}
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '50px',
+                display: 'flex',
+                fontSize: 24,
+                color: '#94A3B8',
+                fontWeight: 600,
+                letterSpacing: '0.08em',
+              }}
+            >
+              @TREND_AUTO_GENERATOR
             </div>
           </div>
         </div>
       ),
       {
-        width: 1000,
-        height: 1000,
+        width: 1080,
+        height: 1080,
       }
     );
   } catch (e: unknown) {
