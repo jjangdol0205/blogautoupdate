@@ -17,7 +17,7 @@ export async function POST(req: Request) {
 
     const prompt = `
 당신은 대한민국 최고의 스포츠 전문 블로거(야구/농구 특화)입니다.
-현재 구글 검색(Google Search)을 실시간으로 적극 활용하여, 오늘 날짜 기준으로 가장 뜨거운 글로벌 스포츠 핫이슈 **딱 3개**를 발굴해내세요.
+현재 구글 검색(Google Search)을 실시간으로 적극 활용하여, 오늘 날짜 기준으로 가장 뜨거운 글로벌 스포츠 핫이슈 **딱 5개**를 발굴해내세요.
 
 [키워드 발굴 절대 원칙]
 1. 타겟 스포츠: KBO(한국 프로야구), MLB(메이저리그), NBA(미국 프로농구) 등 다양한 분야를 아우르세요.
@@ -52,7 +52,7 @@ ${bannedSection}
       const parsed = JSON.parse(jsonStr);
       trends = parsed.trends || [];
       
-      trends = trends.slice(0, 3);
+      trends = trends.slice(0, 5);
       
     } catch (e: any) {
       console.error("Gemini JSON parse failed, text was:", response.text);

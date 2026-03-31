@@ -27,7 +27,7 @@ export async function POST(req: Request) {
 
     const prompt = `
 당신은 대한민국 상위 0.1% 네이버 블로그 트래픽 마스터(SEO 전문가)입니다.
-현재 구글 검색(Google Search)을 실시간으로 적극 활용하여, 오늘 날짜 기준으로 네이버 블로그 생태계에서 매우 뜨거운 관심을 받고 있지만 아직 초대형 인플루언서들이 꽉 잡고 있지 않은 **'틈새(니치) 황금 롱테일 키워드' 딱 3개**를 발굴해내세요.
+현재 구글 검색(Google Search)을 실시간으로 적극 활용하여, 오늘 날짜 기준으로 네이버 블로그 생태계에서 매우 뜨거운 관심을 받고 있지만 아직 초대형 인플루언서들이 꽉 잡고 있지 않은 **'틈새(니치) 황금 롱테일 키워드' 딱 5개**를 발굴해내세요.
 ${bannedSection}
 
 ${feedbackLearningGuidance}
@@ -69,8 +69,8 @@ ${feedbackLearningGuidance}
       const parsed = JSON.parse(jsonStr);
       trends = parsed.trends || [];
       
-      // 개수 제한 (만약 3개 이상이면 자름)
-      trends = trends.slice(0, 3);
+      // 개수 제한 (만약 5개 이상이면 자름)
+      trends = trends.slice(0, 5);
       
     } catch (e: any) {
       console.error("Gemini JSON parse failed, text was:", response.text);
