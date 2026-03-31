@@ -1,20 +1,20 @@
-import { GoogleGenAI } from '@google/genai'; 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }); 
+import { GoogleGenAI } from "@google/genai";
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 async function test() {
   try {
-    const imgRes = await ai.models.generateImages({
-      model: 'imagen-4.0-fast-generate-001',
-      prompt: `한글 텍스트 테스트`,
-      config: { 
-        numberOfImages: 1, 
-        aspectRatio: '16:9',
-        outputMimeType: 'image/jpeg'
-      }
+    const res = await ai.models.generateImages({
+      model: 'imagen-3.0-generate-002',
+      prompt: 'A professional baseball player',
+      config: { numberOfImages: 1, outputMimeType: 'image/jpeg', aspectRatio: '1:1' }
     });
-    console.log("Success! Image size:", imgRes.generatedImages[0].image.imageBytes.length);
-  } catch(e) {
-    console.log("FAILED WITH ERROR:", e);
+    console.log("Success!");
+    console.log(Object.keys(res));
+  } catch (e) {
+    console.error("Failed:", e.message);
   }
 }
 test();

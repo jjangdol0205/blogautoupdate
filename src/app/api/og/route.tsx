@@ -8,6 +8,7 @@ export async function GET(request: Request) {
     const top = searchParams.get('top') || '블로그 왕초보 필수';
     const mid = searchParams.get('mid') || '블로그';
     const bottom = searchParams.get('bottom') || '챌린지';
+    const bgUrl = searchParams.get('bg');
 
     // 해시태그 형식으로 변환 (앞에 #이 없으면 단어별로 # 추가)
     const topTags = top.includes('#') ? top : `#${top.split(' ').filter(t => t.trim() !== '').join(' #')}`;
@@ -32,19 +33,33 @@ export async function GET(request: Request) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundImage: 'linear-gradient(to bottom right, #7C3AED, #0EA5E9)', // 진한 보라색 -> 맑은 스카이블루 (영롱한 오로라 그라데이션)
+            backgroundImage: bgUrl ? 'none' : 'linear-gradient(to bottom right, #7C3AED, #0EA5E9)', // 진한 보라색 -> 맑은 스카이블루 (영롱한 오로라 그라데이션)
+            backgroundColor: bgUrl ? '#000' : 'transparent',
             fontFamily: 'sans-serif',
             position: 'relative',
             overflow: 'hidden',
           }}
         >
-          {/* Background Text Pattern - Subtle Typography */}
-          <div style={{ position: 'absolute', top: '-10px', left: '40px', display: 'flex', fontSize: 130, fontWeight: 900, color: 'rgba(255, 255, 255, 0.05)', letterSpacing: '0.05em' }}>
-            DAILY INSIGHT
-          </div>
-          <div style={{ position: 'absolute', bottom: '-10px', right: '40px', display: 'flex', fontSize: 130, fontWeight: 900, color: 'rgba(255, 255, 255, 0.05)', letterSpacing: '0.05em' }}>
-            TREND INFO
-          </div>
+          {bgUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img 
+              src={bgUrl} 
+              alt="bg" 
+              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.85 }} 
+            />
+          )}
+
+          {/* Background Text Pattern - Subtle Typography (Hidden if bg exists) */}
+          {!bgUrl && (
+            <div style={{ position: 'absolute', top: '-10px', left: '40px', display: 'flex', fontSize: 130, fontWeight: 900, color: 'rgba(255, 255, 255, 0.05)', letterSpacing: '0.05em' }}>
+              DAILY INSIGHT
+            </div>
+          )}
+          {!bgUrl && (
+            <div style={{ position: 'absolute', bottom: '-10px', right: '40px', display: 'flex', fontSize: 130, fontWeight: 900, color: 'rgba(255, 255, 255, 0.05)', letterSpacing: '0.05em' }}>
+              TREND INFO
+            </div>
+          )}
 
           {/* Glowing Orbs behind the Glass Card */}
           <div style={{ position: 'absolute', top: '100px', left: '150px', width: '300px', height: '300px', borderRadius: '150px', backgroundColor: '#F472B6', opacity: 0.8, filter: 'blur(50px)' }} />
