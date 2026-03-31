@@ -297,21 +297,38 @@ ${deviceType === 'mobile' ? "(생성된 블로그 본문을 <p>, <br>, <b> 태�
 [/CONTENT]
 `;
 
-    const streamRes = await ai.models.generateContentStream({
-      model: "gemini-2.5-pro",
-      contents: prompt,
-      config: {
-        temperature: 0.7,
-        maxOutputTokens: 8192,
-        tools: [{ googleSearch: {} }], // 구글 검색을 통한 최신 타 블로그 글 분석 벤치마킹 활성화
-        safetySettings: [
-          { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-          { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
-          { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
-          { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE }
-        ]
-      },
-    });
+    const commonConfig = {
+      temperature: 0.7,
+      maxOutputTokens: 8192,
+      tools: [{ googleSearch: {} }],
+      // @ts-ignore
+      safetySettings: [
+        { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+        { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+        { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+        { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE }
+      ]
+    };
+
+    let streamRes;
+    try {
+      streamRes = await ai.models.generateContentStream({
+        model: "gemini-2.5-pro",
+        contents: prompt,
+        config: commonConfig,
+      });
+    } catch (generateErr: any) {
+      if (generateErr.message?.includes('503') || generateErr.message?.includes('high demand') || generateErr.message?.includes('UNAVAILABLE')) {
+        console.warn("gemini-2.5-pro is currently overloaded (503). Falling back to gemini-2.5-flash...");
+        streamRes = await ai.models.generateContentStream({
+          model: "gemini-2.5-flash",
+          contents: prompt,
+          config: commonConfig,
+        });
+      } else {
+        throw generateErr;
+      }
+    }
 
     const host = req.headers.get('host') || 'localhost:3000';
     const protocol = req.headers.get('x-forwarded-proto') || 'http';
