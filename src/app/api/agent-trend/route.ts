@@ -106,21 +106,27 @@ ${feedbackLearningGuidance}
     }
 
     let response;
-    // 503/429 발생 시 즉각적으로 모델을 다운그레이드하며 3회 시도합니다 (지연시간 제거하여 Vercel Timeout 방지)
-    const fallbackModels = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-flash-latest"];
+    // 2.5 버전이 터졌을 경우, 가장 우수하고 안정적인 gemini-pro-latest를 최우선 투입합니다
+    const fallbackModels = ["gemini-2.5-flash", "gemini-pro-latest", "gemini-flash-latest"];
     let attempt = 0;
 
     while (attempt < fallbackModels.length) {
       try {
         const currentModel = fallbackModels[attempt];
+        
+        // 마지막 최후의 보루 시도 시, 구글 검색 도구가 503 원인일 수 있으므로 검색 툴을 제거합니다.
+        const currentConfig: any = {
+           systemInstruction: "당신은 트렌드를 분석하는 AI입니다. 구글 검색 과정이나 원본 검색 데이터({'title': ...} 형태)를 절대 출력하지 마세요. 오직 사용자가 요청한 JSON 형식 문서만 출력해야 합니다.",
+           temperature: 0.8,
+        };
+        if (attempt < fallbackModels.length - 1) {
+           currentConfig.tools = [{ googleSearch: {} }];
+        }
+
         response = await ai.models.generateContent({
           model: currentModel,
           contents: prompt,
-          config: {
-            systemInstruction: "당신은 트렌드를 분석하는 AI입니다. 구글 검색 과정이나 원본 검색 데이터({'title': ...} 형태)를 절대 출력하지 마세요. 오직 사용자가 요청한 JSON 형식 문서만 출력해야 합니다.",
-            temperature: 0.8,
-            tools: [{ googleSearch: {} }]
-          },
+          config: currentConfig,
         });
         break; // 성공 시 탈출
       } catch (err: any) {
@@ -129,8 +135,9 @@ ${feedbackLearningGuidance}
         const is429 = err?.status === 429 || err?.message?.includes('429') || err?.message?.includes('quota');
         
         if ((is503 || is429) && attempt < fallbackModels.length) {
-           console.warn(`[Agent-Trend] 503/429 Error on ${fallbackModels[attempt-1]}. Falling back to ${fallbackModels[attempt]}...`);
-           continue; // 딜레이 없이 즉시 다음 모델로 시도
+           console.warn(`[Agent-Trend] 503/429 Error on ${fallbackModels[attempt-1]}. Waiting 2.5s before fallback to ${fallbackModels[attempt]}...`);
+           await new Promise(resolve => setTimeout(resolve, 2500));
+           continue; 
         } else {
            if (attempt >= fallbackModels.length) {
              throw new Error('현재 구글 AI 서버에 전 세계적인 과부하가 발생하여 모든 모델이 지연되고 있습니다. 1~2분 뒤에 다시 시도해주세요.');

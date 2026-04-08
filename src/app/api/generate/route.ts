@@ -82,11 +82,29 @@ export async function POST(req: Request) {
     
     사용자 검색어: ${keyword}`;
 
-    const transRes = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: translatePrompt,
-      config: { temperature: 0.1, responseMimeType: "application/json" },
-    });
+    let transRes;
+    const transModels = ["gemini-2.5-flash", "gemini-pro-latest", "gemini-flash-latest"];
+    let transAttempt = 0;
+
+    while (transAttempt < transModels.length) {
+      try {
+        transRes = await ai.models.generateContent({
+          model: transModels[transAttempt],
+          contents: translatePrompt,
+          config: { temperature: 0.1, responseMimeType: "application/json" },
+        });
+        break;
+      } catch (err: any) {
+        transAttempt++;
+        const is503 = err?.status === 503 || err?.message?.includes('503') || err?.message?.includes('high demand') || err?.message?.includes('UNAVAILABLE');
+        if (is503 && transAttempt < transModels.length) {
+          console.warn(`[Generate-Init] 503 error on ${transModels[transAttempt-1]}, falling back to ${transModels[transAttempt]}`);
+          continue;
+        } else {
+          throw err;
+        }
+      }
+    }
     
     let searchParams = { primary: "사무실", fallback: "비즈니스", englishSubject: "office desktop", thumbnailTop: "오늘의 핵심 정보", thumbnailMid: keyword || "핵심 요약", thumbnailBottom: "지금 바로 확인!" };
     try {
@@ -326,25 +344,34 @@ ${deviceType === 'mobile' ? "(생성된 블로그 본문을 <p>, <br>, <b> 태�
     };
 
     let streamRes;
-    const generateModels = ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-flash-latest"];
+    const generateModels = ["gemini-2.5-pro", "gemini-pro-latest", "gemini-flash-latest"];
     let genAttempt = 0;
 
     while (genAttempt < generateModels.length) {
       try {
+        const currentModel = generateModels[genAttempt];
+        
+        // 마지막 최후의 보루 시도 시, 구글 검색 도구가 503 원인일 수 있으므로 검색 없이 순수 AI 지식으로만 생성합니다.
+        const currentConfig = genAttempt === generateModels.length - 1 
+          ? { ...commonConfig, tools: undefined } 
+          : commonConfig;
+
         streamRes = await ai.models.generateContentStream({
-          model: generateModels[genAttempt],
+          model: currentModel,
           contents: prompt,
-          config: commonConfig,
+          config: currentConfig,
         });
-        break; // 성공 시 탈출
+        break; // 성공 시 루프 탈출
       } catch (generateErr: any) {
         genAttempt++;
         const is503 = generateErr?.status === 503 || generateErr.message?.includes('503') || generateErr.message?.includes('high demand') || generateErr.message?.includes('UNAVAILABLE');
         const is429 = generateErr?.status === 429 || generateErr.message?.includes('429') || generateErr.message?.includes('quota');
         
         if ((is503 || is429) && genAttempt < generateModels.length) {
-          console.warn(`[Generate] 503/429 overloaded on ${generateModels[genAttempt-1]}. Falling back to ${generateModels[genAttempt]}...`);
-          continue; // 즉시 다음 모델로 우회
+          console.warn(`[Generate] 503/429 on ${generateModels[genAttempt-1]}. Waiting 2.5s before falling back to ${generateModels[genAttempt]}...`);
+          // 너무 빨리 던지면 구글 WAF가 전부 503을 줄 수 있으므로 2.5초 숨고르기
+          await new Promise(resolve => setTimeout(resolve, 2500));
+          continue; 
         } else {
           throw generateErr;
         }
