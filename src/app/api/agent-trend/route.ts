@@ -107,7 +107,14 @@ ${feedbackLearningGuidance}
 
     let response;
     // 2.5 버전이 터졌을 경우, 가장 우수하고 안정적인 gemini-pro-latest를 최우선 투입합니다
-    const fallbackModels = ["gemini-2.5-flash", "gemini-pro-latest", "gemini-flash-latest"];
+    const fallbackModels = [
+      "gemini-2.5-flash", 
+      "gemini-flash-latest", 
+      "gemini-1.5-flash", 
+      "gemini-2.5-pro", 
+      "gemini-pro-latest", 
+      "gemini-1.5-pro"
+    ];
     let attempt = 0;
 
     while (attempt < fallbackModels.length) {
