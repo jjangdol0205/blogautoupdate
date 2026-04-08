@@ -106,11 +106,13 @@ ${feedbackLearningGuidance}
     }
 
     let response;
-    let retries = 3;
-    let currentModel = "gemini-2.5-flash";
+    // 503/429 발생 시 즉각적으로 모델을 다운그레이드하며 3회 시도합니다 (지연시간 제거하여 Vercel Timeout 방지)
+    const fallbackModels = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-flash-latest"];
+    let attempt = 0;
 
-    while (retries > 0) {
+    while (attempt < fallbackModels.length) {
       try {
+        const currentModel = fallbackModels[attempt];
         response = await ai.models.generateContent({
           model: currentModel,
           contents: prompt,
@@ -120,25 +122,20 @@ ${feedbackLearningGuidance}
             tools: [{ googleSearch: {} }]
           },
         });
-        break; // 성공 시 루프 탈출
+        break; // 성공 시 탈출
       } catch (err: any) {
-        retries--;
+        attempt++;
         const is503 = err?.status === 503 || err?.message?.includes('503') || err?.message?.includes('high demand') || err?.message?.includes('UNAVAILABLE');
         const is429 = err?.status === 429 || err?.message?.includes('429') || err?.message?.includes('quota');
         
-        if ((is503 || is429) && retries > 0) {
-          // Flash 모델이 503 폭주 에러를 뱉을 경우, 결제 유저(Tier 1)의 이점을 살려 Pro 모델로 즉각 우회
-          if (currentModel === "gemini-2.5-flash") {
-             console.log("[Agent-Trend] 503/429 Error on Flash. Switching to gemini-2.5-pro...");
-             currentModel = "gemini-2.5-pro";
-          } else {
-             const waitTime = (3 - retries) * 2000;
-             console.log(`[Agent-Trend] Error on Pro. Retrying in ${waitTime}ms... (${retries} attempts left)`);
-             await new Promise(resolve => setTimeout(resolve, waitTime));
-          }
+        if ((is503 || is429) && attempt < fallbackModels.length) {
+           console.warn(`[Agent-Trend] 503/429 Error on ${fallbackModels[attempt-1]}. Falling back to ${fallbackModels[attempt]}...`);
+           continue; // 딜레이 없이 즉시 다음 모델로 시도
         } else {
-          // 모두 실패했을 경우에만 프론트엔드로 에러 메시지(503 안내문) 전달
-          throw new Error(is503 ? '현재 구글 AI 서버에 트래픽이 폭주하여 지연되고 있습니다. 잠시 후 다시 버튼을 눌러주세요.' : (err?.message || '알 수 없는 오류'));
+           if (attempt >= fallbackModels.length) {
+             throw new Error('현재 구글 AI 서버에 전 세계적인 과부하가 발생하여 모든 모델이 지연되고 있습니다. 1~2분 뒤에 다시 시도해주세요.');
+           }
+           throw new Error(err?.message || '알 수 없는 오류');
         }
       }
     }
