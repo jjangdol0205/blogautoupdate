@@ -79,17 +79,9 @@ export default function Home() {
     
     let currentKeyword = overrideKeyword || keyword;
     
-    if (category === 'brandconnect') {
-      if (!bcTitle.trim() || !bcLink.trim()) {
-        setErrorMsg("네이버 브랜드 커넥트: 상품명과 제휴 링크를 반드시 입력해주세요.");
-        return;
-      }
-      currentKeyword = `상품명: ${bcTitle}\n제휴링크: ${bcLink}`;
-    } else {
-      if (!currentKeyword.trim()) return;
-    }
+    if (!currentKeyword.trim()) return;
 
-    if (overrideKeyword && category !== 'brandconnect') {
+    if (overrideKeyword) {
       setKeyword(overrideKeyword);
     }
 
@@ -264,7 +256,7 @@ export default function Home() {
     }
   };
 
-  const renderTrendBlock = (trends: any[], title: string, icon: React.ReactNode, type: 'purple' | 'blue' | 'emerald' | 'orange', category: string) => {
+  const renderTrendBlock = (trends: any[], title: string, icon: React.ReactNode, type: 'purple' | 'blue' | 'emerald' | 'red', category: string) => {
     if (trends.length === 0) return null;
     
     const colorMap = {
@@ -283,10 +275,10 @@ export default function Home() {
         cardBorder: 'border-emerald-100', cardTitle: 'text-emerald-900 hover:text-emerald-600', 
         btn: 'bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white border-emerald-200 hover:border-emerald-600'
       },
-      orange: {
-        bg: 'bg-orange-50', border: 'border-orange-100', titleText: 'text-orange-900', badgeInfo: 'bg-orange-600', 
-        cardBorder: 'border-orange-100', cardTitle: 'text-orange-900 hover:text-orange-600', 
-        btn: 'bg-orange-50 hover:bg-orange-600 text-orange-700 hover:text-white border-orange-200 hover:border-orange-600'
+      red: {
+        bg: 'bg-red-50', border: 'border-red-100', titleText: 'text-red-900', badgeInfo: 'bg-red-600', 
+        cardBorder: 'border-red-100', cardTitle: 'text-red-900 hover:text-red-600', 
+        btn: 'bg-red-50 hover:bg-red-600 text-red-700 hover:text-white border-red-200 hover:border-red-600'
       }
     };
     const colors = colorMap[type];
@@ -326,12 +318,12 @@ export default function Home() {
   const isAnyLoading = isTrendLoading || isGenerating;
 
   return (
-    <div className="min-h-screen pb-20">
-      <div className="fixed top-0 left-0 w-full h-[50vh] bg-gradient-to-b from-green-50 to-transparent -z-10 pointer-events-none" />
+    <div className="min-h-screen pb-20 text-slate-100">
+      <div className="fixed top-0 left-0 w-full h-[50vh] bg-gradient-to-b from-cyan-900/30 to-transparent -z-10 pointer-events-none" />
       
       <main className="container pt-16 md:pt-24 animate-fade-in">
         <section className="text-center mb-16 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-green-200 text-sm font-medium text-green-700 mb-6 shadow-sm">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800 border border-slate-700 text-sm font-medium text-cyan-400 mb-6 shadow-sm">
             <Sparkles className="w-4 h-4" />
             <span>AI 기반 네이버 블로그 자동 완성</span>
           </div>
@@ -348,7 +340,7 @@ export default function Home() {
           <section className="glass-panel p-8 delay-100 h-fit">
             
             <h2 className="heading-2 mb-6 flex items-center gap-2">
-              <PenTool className="w-6 h-6 text-[#00c73c]" />
+              <PenTool className="w-6 h-6 text-cyan-400" />
               AI가 알아서 🚀 빈집 털어옵니다
             </h2>
             
@@ -360,15 +352,15 @@ export default function Home() {
                   <label htmlFor="trendCoreKeyword" className="block text-sm font-semibold">
                     트렌드 추출용 핵심 키워드 <span className="text-gray-400 font-normal">(선택)</span>
                   </label>
-                  <input
+                    <input
                     id="trendCoreKeyword"
                     type="text"
                     value={trendCoreKeyword}
                     onChange={(e) => setTrendCoreKeyword(e.target.value)}
-                    placeholder="예: 최신 스마트폰, 또는 로또 청약"
-                    className="w-full px-4 py-3 rounded-md border border-gray-300 focus:border-[#00c73c] focus:ring-1 focus:ring-[#00c73c] outline-none transition-all"
+                    placeholder="예: 60대 비즈니스 경제"
+                    className="w-full px-4 py-3 rounded-md border border-slate-600 bg-slate-800 text-slate-100 placeholder-slate-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all"
                   />
-                  <p className="text-xs text-gray-500">추출 시 위 키워드를 기반으로 연관 롱테일을 찾아옵니다.</p>
+                  <p className="text-xs text-slate-400">두 번째 블로그 추출 시 위 키워드를 기반으로 연관 롱테일을 찾아옵니다.</p>
                 </div>
 
                 {/* 3 Blog Modes */}
@@ -383,7 +375,7 @@ export default function Home() {
                       {isTrendLoading && activeBlogStyle === 'blog1' ? <Loader2 className="w-5 h-5 animate-spin text-purple-600" /> : <Sparkles className="w-5 h-5 text-purple-600" />}
                       <span className="text-base">1. 첫번째 블로그 추출 (보라/블루 썸네일)</span>
                     </div>
-                    <span className="text-xs font-normal text-purple-700 ml-7">재테크 중심 정부지원금 + 경제 핫이슈 트렌드 자동 발굴</span>
+                    <span className="text-xs font-normal text-purple-700 ml-7">일반 트렌드 + 경제 핫이슈 자동 추출 및 전용 썸네일 생성</span>
                   </button>
 
                   <button
@@ -396,29 +388,29 @@ export default function Home() {
                        {isTrendLoading && activeBlogStyle === 'blog2' ? <Loader2 className="w-5 h-5 animate-spin text-emerald-600" /> : <Sparkles className="w-5 h-5 text-emerald-600" />}
                       <span className="text-base">2. 두번째 블로그 추출 (그린/에메랄드 썸네일)</span>
                     </div>
-                    <span className="text-xs font-normal text-emerald-700 ml-7">IT/테크 기기 + 리빙/가전 실생활 꿀템 트렌드 자동 발굴</span>
+                    <span className="text-xs font-normal text-emerald-700 ml-7">일반 트렌드 + 경제 핫이슈 자동 추출 및 전용 썸네일 생성</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => fetchAiTrendMiner('blog3')}
                     disabled={isAnyLoading}
-                    className="w-full px-5 py-4 bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 hover:border-orange-400 text-orange-900 font-bold rounded-2xl shadow-sm transition-all hover:-translate-y-0.5 flex flex-col items-start gap-1"
+                    className="w-full px-5 py-4 bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 hover:border-red-400 text-red-900 font-bold rounded-2xl shadow-sm transition-all hover:-translate-y-0.5 flex flex-col items-start gap-1"
                   >
                     <div className="flex items-center gap-2">
-                       {isTrendLoading && activeBlogStyle === 'blog3' ? <Loader2 className="w-5 h-5 animate-spin text-orange-600" /> : <Sparkles className="w-5 h-5 text-orange-600" />}
-                      <span className="text-base">3. 세번째 블로그 추출 (코랄/오렌지 썸네일)</span>
+                       {isTrendLoading && activeBlogStyle === 'blog3' ? <Loader2 className="w-5 h-5 animate-spin text-red-600" /> : <Sparkles className="w-5 h-5 text-red-600" />}
+                      <span className="text-base">3. 세번째 블로그 추출 (레드/오렌지 썸네일)</span>
                     </div>
-                    <span className="text-xs font-normal text-orange-700 ml-7">건강 상식 + 일상 웰니스 꿀팁 트렌드 자동 발굴</span>
+                    <span className="text-xs font-normal text-red-700 ml-7">순수 홈판 저격 어그로 특화 (연예/대기업/가십)</span>
                   </button>
                 </div>
 
-                {renderTrendBlock(aiTrends, "AI 황금 키워드 TOP 5", <Lightbulb className="w-3 h-3"/>, activeBlogStyle === 'blog1' ? 'purple' : activeBlogStyle === 'blog2' ? 'emerald' : 'orange', activeBlogStyle)}
+                {renderTrendBlock(aiTrends, "AI 황금 키워드 TOP 5", <Lightbulb className="w-3 h-3"/>, activeBlogStyle === 'blog1' ? 'purple' : activeBlogStyle === 'blog2' ? 'emerald' : 'red', activeBlogStyle)}
 
                 <div className="flex items-center gap-3 my-6">
-                  <div className="h-px bg-gray-200 flex-1"></div>
-                  <span className="text-sm font-semibold text-gray-500">또는</span>
-                  <div className="h-px bg-gray-200 flex-1"></div>
+                  <div className="h-px bg-slate-700 flex-1"></div>
+                  <span className="text-sm font-semibold text-slate-400">또는</span>
+                  <div className="h-px bg-slate-700 flex-1"></div>
                 </div>
 
                 <div className="space-y-2">
@@ -431,7 +423,7 @@ export default function Home() {
                     value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
                     placeholder="직접 작성하고 싶은 특정 키워드가 있다면 입력하세요."
-                    className="w-full px-4 py-3 rounded-md border border-gray-300 focus:border-[#00c73c] focus:ring-1 focus:ring-[#00c73c] outline-none transition-all"
+                    className="w-full px-4 py-3 rounded-md border border-slate-600 bg-slate-800 text-slate-100 placeholder-slate-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all"
                   />
                 </div>
 
@@ -456,9 +448,9 @@ export default function Home() {
                     포스팅 생성 중...
                   </>
                 ) : (
-                   <>
+                  <>
                     <PenTool className="w-5 h-5" />
-                    입력된 키워드로 포스팅 생성 ({activeBlogStyle === 'blog3' ? '세번째' : activeBlogStyle === 'blog1' ? '첫번째' : '두번째'} 블로그 썸네일)
+                    {`입력된 키워드로 포스팅 생성 (${activeBlogStyle === 'blog1' ? '첫번째 블로그' : activeBlogStyle === 'blog2' ? '두번째 블로그' : '세번째 블로그'} 썸네일)`}
                   </>
                 )}
               </button>
