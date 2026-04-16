@@ -394,14 +394,6 @@ export default function Home() {
 
                   <button
                     type="button"
-                    onClick={() => { setActiveBlogStyle('brandconnect'); setAiTrends([]); setResult(null); setErrorMsg(null); }}
-                    disabled={isAnyLoading}
-                    className={`w-full px-5 py-4 bg-gradient-to-r ${activeBlogStyle === 'brandconnect' ? 'from-orange-100 to-red-100 py-5 border-orange-500 border-2' : 'from-orange-50 to-red-50 border-orange-200 hover:border-orange-400'} text-orange-900 font-bold rounded-2xl shadow-sm transition-all hover:-translate-y-0.5 flex flex-col items-start gap-1`}
-                  >
-                    <div className="flex items-center gap-2">
-                       <DollarSign className="w-5 h-5 text-orange-600" />
-                  <button
-                    type="button"
                     onClick={() => fetchAiTrendMiner('blog3')}
                     disabled={isAnyLoading}
                     className="w-full px-5 py-4 bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 hover:border-red-400 text-red-900 font-bold rounded-2xl shadow-sm transition-all hover:-translate-y-0.5 flex flex-col items-start gap-1"

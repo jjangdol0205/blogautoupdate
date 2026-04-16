@@ -1,0 +1,1 @@
+const fs = require('fs'); let c = fs.readFileSync('src/app/api/agent-trend/route.ts', 'utf8'); c = c.split(String.fromCharCode(92)+String.fromCharCode(96)).join(String.fromCharCode(96)); c = c.replace(/\(\\\\)/g, '(πÈ∆Ω±‚»£)'); fs.writeFileSync('src/app/api/agent-trend/route.ts', c);
