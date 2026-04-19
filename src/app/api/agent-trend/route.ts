@@ -168,7 +168,6 @@ ${feedbackLearningGuidance}
         const currentConfig: any = {
            systemInstruction: "당신은 트렌드를 분석하는 AI입니다. 구글 검색 과정이나 원본 검색 데이터({'title': ...} 형태)를 절대 출력하지 마세요. 오직 사용자가 요청한 JSON 형식 문서만 출력해야 합니다.",
            temperature: 0.95, // 온도를 높여 더욱 다양하고 창의적인 키워드 도출 유도
-           responseMimeType: "application/json",
         };
         if (attempt < fallbackModels.length - 1) {
            currentConfig.tools = [{ googleSearch: {} }];
@@ -204,9 +203,18 @@ ${feedbackLearningGuidance}
 
     let trends = [];
     try {
-      const jsonStr = response.text?.replace(/```json/g, '').replace(/```/g, '').trim() || '{"trends":[]}';
-      const parsed = JSON.parse(jsonStr);
-      trends = parsed.trends || [];
+      const text = response.text || "";
+      // AI가 "The search results..." 와 같은 사족을 붙일 경우를 대비해 순수 JSON 블록만 추출
+      const startIndex = text.indexOf('{');
+      const endIndex = text.lastIndexOf('}');
+      
+      if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
+        const jsonStr = text.substring(startIndex, endIndex + 1);
+        const parsed = JSON.parse(jsonStr);
+        trends = parsed.trends || [];
+      } else {
+        throw new Error("JSON 블록을 찾을 수 없습니다.");
+      }
       
       // 개수 제한 (만약 5개 이상이면 자름)
       trends = trends.slice(0, 5);
