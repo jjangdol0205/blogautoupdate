@@ -168,6 +168,7 @@ ${feedbackLearningGuidance}
         const currentConfig: any = {
            systemInstruction: "당신은 트렌드를 분석하는 AI입니다. 구글 검색 과정이나 원본 검색 데이터({'title': ...} 형태)를 절대 출력하지 마세요. 오직 사용자가 요청한 JSON 형식 문서만 출력해야 합니다.",
            temperature: 0.95, // 온도를 높여 더욱 다양하고 창의적인 키워드 도출 유도
+           responseMimeType: "application/json",
         };
         if (attempt < fallbackModels.length - 1) {
            currentConfig.tools = [{ googleSearch: {} }];
