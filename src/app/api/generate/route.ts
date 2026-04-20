@@ -97,8 +97,12 @@ export async function POST(req: Request) {
       } catch (err: any) {
         transAttempt++;
         const is503 = err?.status === 503 || err?.message?.includes('503') || err?.message?.includes('high demand') || err?.message?.includes('UNAVAILABLE');
-        if (is503 && transAttempt < transModels.length) {
-          console.warn(`[Generate-Init] 503 error on ${transModels[transAttempt-1]}, falling back to ${transModels[transAttempt]}`);
+        const is429 = err?.status === 429 || err?.message?.includes('429') || err?.message?.includes('quota') || err?.message?.includes('RESOURCE_EXHAUSTED');
+        
+        if ((is503 || is429) && transAttempt < transModels.length) {
+          const waitMs = is429 ? 15000 : 3000;
+          console.warn(`[Generate-Init] 503/429 error on ${transModels[transAttempt-1]}, falling back to ${transModels[transAttempt]} after ${waitMs}ms`);
+          await new Promise(resolve => setTimeout(resolve, waitMs));
           continue;
         } else {
           throw err;
@@ -375,10 +379,10 @@ ${deviceType === 'mobile' ? "(생성된 블로그 본문을 <p>, <br>, <b> 태�
       } catch (generateErr: any) {
         genAttempt++;
         const is503 = generateErr?.status === 503 || generateErr.message?.includes('503') || generateErr.message?.includes('high demand') || generateErr.message?.includes('UNAVAILABLE');
-        const is429 = generateErr?.status === 429 || generateErr.message?.includes('429') || generateErr.message?.includes('quota');
+        const is429 = generateErr?.status === 429 || generateErr.message?.includes('429') || generateErr.message?.includes('quota') || generateErr.message?.includes('RESOURCE_EXHAUSTED');
         
         if ((is503 || is429) && genAttempt < generateModels.length) {
-          const waitMs = is429 ? 10000 : 3000; // 429 쿼터 초과는 10초 대기, 503은 3초 대기
+          const waitMs = is429 ? 15000 : 3000; // 429 쿼터 초과는 15초 대기, 503은 3초 대기
           console.warn(`[Generate] 503/429 on ${generateModels[genAttempt-1]}. Waiting ${waitMs}ms before falling back to ${generateModels[genAttempt]}...`);
           await new Promise(resolve => setTimeout(resolve, waitMs));
           continue; 

@@ -185,12 +185,13 @@ ${feedbackLearningGuidance}
         const is429 = err?.status === 429 || err?.message?.includes('429') || err?.message?.includes('quota');
         
         if ((is503 || is429) && attempt < fallbackModels.length) {
-           console.warn(`[Agent-Trend] 503/429 Error on ${fallbackModels[attempt-1]}. Waiting 2.5s before fallback to ${fallbackModels[attempt]}...`);
-           await new Promise(resolve => setTimeout(resolve, 2500));
+           const waitMs = is429 ? 15000 : 2500;
+           console.warn(`[Agent-Trend] 503/429 Error on ${fallbackModels[attempt-1]}. Waiting ${waitMs}ms before fallback to ${fallbackModels[attempt]}...`);
+           await new Promise(resolve => setTimeout(resolve, waitMs));
            continue; 
         } else {
            if (attempt >= fallbackModels.length) {
-             throw new Error('현재 구글 AI 서버에 전 세계적인 과부하가 발생하여 모든 모델이 지연되고 있습니다. 1~2분 뒤에 다시 시도해주세요.');
+             throw new Error('현재 구글 AI API 요청 제한량(Quota) 초과 또는 트래픽 과부하가 발생했습니다. 잠시 후 다시 시도해주세요. (' + (err?.message || '') + ')');
            }
            throw new Error(err?.message || '알 수 없는 오류');
         }
